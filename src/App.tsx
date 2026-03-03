@@ -140,7 +140,7 @@ export default function App() {
       {/* ── Top Bar ────────────────────────────────────────────────── */}
       <div className="topbar">
         <div className="topbar-left">
-          <div className="logo-mark">EC</div>
+          <div className="logo-mark">⚙</div>
           <div>
             <div className="topbar-title">ECU Dashboard</div>
             <div className="topbar-sub">IC Engine Real-Time Monitor</div>
@@ -243,13 +243,13 @@ export default function App() {
             className={`settings-option ${mode === 'demo' ? 'active' : ''}`}
             onClick={() => setMode('demo')}
           >
-            <span className="settings-option-label">🧪 Demo / Simulation</span>
+            <span className="settings-option-label">🤖 Simulated Data</span>
           </div>
           <div
             className={`settings-option ${mode === 'live' ? 'active' : ''}`}
             onClick={() => setMode('live')}
           >
-            <span className="settings-option-label">📡 Live OBD2</span>
+            <span className="settings-option-label">📡 Live OBD2 Data</span>
           </div>
         </div>
 
