@@ -66,6 +66,8 @@ This is normal for new applications without a
 paid code signing certificate.
 
 
+
+
 **License**
 MIT License — free to use, modify and distribute.
 
