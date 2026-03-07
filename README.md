@@ -5,7 +5,7 @@ Connects to any ELM327 OBD2 adapter to display live engine
 data, or runs in demo mode with simulated engine data.
 
 
----## What it does
+## What it does
 
 - Displays live RPM, speed, engine temperature, exhaust temperature,
   engine load, throttle position, gear, battery voltage and more
