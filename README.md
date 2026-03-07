@@ -68,4 +68,5 @@ paid code signing certificate.
 
 **License**
 MIT License — free to use, modify and distribute.
+
 *Built as an engineering project for real-time IC engine monitoring via OBD2 diagnostics.*
