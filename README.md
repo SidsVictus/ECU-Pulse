@@ -50,13 +50,13 @@ Available in releases as **Version 1.0.0**
 
 ## Steps:
 
-Download ECU_OBD2_Bridge.exe
-Plug OBD2 cable into your bike or car
-Plug USB end into your laptop
-Double-click ECU_OBD2_Bridge.exe
-Open the dashboard and select Live OBD2 Mode
-*For devs who are interested in seeing obd2 working in python, 
-download **obd2_bridge.py** in your system and double click, the terminal will open.*
+Download ECU_OBD2_Bridge.exe   
+Plug OBD2 cable into your bike or car   
+Plug USB end into your laptop   
+Double-click ECU_OBD2_Bridge.exe   
+Open the dashboard and select Live OBD2 Mode   
+*For devs who are interested in seeing obd2 working in python,    
+download **obd2_bridge.py** in your system and double click, the terminal will open.*    
 
 **Windows SmartScreen:**
 Windows may show a warning when running the file.
