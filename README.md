@@ -12,7 +12,6 @@ available on Amazon and electronics shops.
 
 **Compatible connection types:**
 -USB (recommended)
--Bluetooth ELM327 v1.5
 
 **Compatible vehicles:**
 -Any bike or car with fuel injection (FI)
