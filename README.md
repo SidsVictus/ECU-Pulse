@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="https://ecupulse.surge.sh">Live Demo</a>
+  <a href="https://ecupulse.surge.sh">Dashboard</a>
   &nbsp;&bull;&nbsp;
   <a href="https://github.com/SidsVictus/ECU-Pulse/blob/main/ECU-Pulse.pdf">Documentation</a>
   &nbsp;&bull;&nbsp;
