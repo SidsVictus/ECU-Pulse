@@ -6,4 +6,3 @@ ECU_OBD2_Bridge.spec
 build_exe.bat
 build_exe.sh
 package-lock.json
-neogen/
