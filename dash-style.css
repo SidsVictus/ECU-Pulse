@@ -386,133 +386,129 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 
 /* ═══ RESPONSIVE ═══ */
 
-/* Tablet — compact two-row stat grid, charts stack */
+/* ── Tablet ── */
 @media (max-width: 1024px) {
-  .stat-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .row-2 { grid-template-columns: 1fr; gap: 10px; }
+  .stat-row { grid-template-columns: repeat(3, 1fr); }
+  .row-2 { grid-template-columns: 1fr; }
   .tacho-card { display: none; }
-  .side-stack { flex-direction: row; gap: 10px; }
-  .health-card, .pie-card { flex: 1; min-width: 0; }
-  .row-3 { gap: 10px; }
-}
-
-/* Mobile landscape / small tablet — two-col stat grid */
-@media (max-width: 768px) {
-  .stat-row { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-  .row-3 { grid-template-columns: 1fr 1fr; }
   .side-stack { flex-direction: row; }
+  .health-card, .pie-card { flex: 1; min-width: 0; }
+}
+
+/* ── Mobile — full redesign ── */
+@media (max-width: 768px) {
+
+  /* ── Hide non-essential header items ── */
   .strip-title { display: none; }
-  .side { width: 280px; padding: 14px 16px; }
-}
-
-/* Mobile portrait — the main mobile experience */
-@media (max-width: 600px) {
-  /* Header */
-  .strip { height: 48px; padding: 0 10px; gap: 6px; }
-  .strip-logo { width: 30px; height: 30px; border-radius: 7px; }
-  .strip-logo svg { width: 18px; height: 18px; }
-  .strip-right { gap: 4px; }
-  .strip-btn { font-size: 0; padding: 0 8px; height: 30px; }
+  .clock-pill { display: none; }
   .csv-btn { display: none; }
-  .pill { padding: 0 6px; font-size: 8px; height: 28px; border-radius: 5px; }
-  .sel { padding: 0 6px; font-size: 9px; height: 28px; border-radius: 5px; }
-  .theme-btn { width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; }
-  .strip-btn[onclick*="toggleSide"] { width: 30px; height: 30px; padding: 0; font-size: 16px; display: flex; align-items: center; justify-content: center; }
 
-  /* Sidebar full-screen overlay */
-  .side { width: 100%; top: 0; bottom: 0; right: 0; padding: 16px; padding-top: 60px; }
+  /* ── Header — clean, minimal, touch-friendly ── */
+  .strip { height: 52px; padding: 0 12px; gap: 8px; }
+  .strip-logo { width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0; }
+  .strip-logo svg { width: 20px; height: 20px; }
+  .strip-right { gap: 6px; }
+  .sel { height: 34px; font-size: 12px; padding: 0 8px; border-radius: 8px; }
+  .strip-btn { height: 34px; padding: 0 10px; border-radius: 8px; font-size: 12px; }
+  .theme-btn { width: 34px; padding: 0; display: flex; align-items: center; justify-content: center; }
+  .strip-btn[onclick*="toggleSide"] { width: 34px; padding: 0; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+
+  /* ── Sidebar — full-screen overlay ── */
+  .side { width: 100%; top: 0; bottom: 0; right: 0; padding: 64px 20px 20px; }
   .side-overlay { top: 0; }
+  .side-h { font-size: 11px; margin-bottom: 16px; }
+  .side-sh { font-size: 10px; margin-bottom: 8px; }
+  .side-btn { padding: 14px; font-size: 13px; border-radius: 10px; min-height: 48px; }
+  .side-ctrl-btn { font-size: 12px; padding: 10px; min-height: 44px; }
+  .spd-btn { font-size: 12px; padding: 10px 0; min-height: 44px; }
+  .mode-btn { font-size: 12px; padding: 10px 12px; min-height: 44px; }
+  .sl { padding: 10px; border-radius: 8px; }
+  .sl span { font-size: 13px; }
+  .sl b { font-size: 14px; }
+  .status-label { font-size: 13px; }
+  .status-sub { font-size: 11px; }
+  .side-status { padding: 12px; border-radius: 12px; gap: 10px; }
+  .side-status .status-dot { width: 10px; height: 10px; }
 
-  /* Main content */
-  .main { padding: 8px 10px 80px; gap: 8px; }
+  /* ── Main content — proper mobile spacing ── */
+  .main { padding: 12px 14px 32px; gap: 12px; }
 
-  /* Stat cards — compact two-col grid */
-  .stat-row { grid-template-columns: repeat(2, 1fr); gap: 6px; }
-  .stat-card { padding: 10px; border-radius: 10px; }
-  .sc-label { font-size: 8px; letter-spacing: 0.5px; }
-  .sc-val { font-size: 22px; font-weight: 800; margin-bottom: 2px; }
-  .sc-sub { font-size: 9px; margin-bottom: 6px; }
-  .sc-bar { height: 3px; }
+  /* ── Alerts ── */
+  .alerts { gap: 6px; }
+  .al { font-size: 11px; padding: 6px 10px; border-radius: 6px; gap: 5px; min-height: 30px; }
+  .al-dot { width: 6px; height: 6px; }
 
-  /* Charts — full width, compact */
-  .row-2 { gap: 8px; }
-  .row-3 { grid-template-columns: 1fr; gap: 8px; }
-  .chart-card { border-radius: 12px; }
-  .cc-head { padding: 8px 10px 0; gap: 6px; }
-  .cc-head b { font-size: 10px; }
-  .cc-badge { font-size: 8px; padding: 1px 6px; }
-  .cc-body { padding: 6px 8px; min-height: 130px; }
-  .cc-foot { padding: 5px 10px; gap: 8px; }
-  .cc-foot span { font-size: 8px; }
+  /* ── Stat cards — 2-col, full-width, big touch targets ── */
+  .stat-row { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card { padding: 14px 12px; border-radius: 12px; min-height: 80px; }
+  .sc-head { margin-bottom: 6px; }
+  .sc-label { font-size: 10px; letter-spacing: 0.8px; }
+  .sc-val { font-size: 28px; margin-bottom: 3px; }
+  .sc-sub { font-size: 11px; margin-bottom: 8px; }
+  .sc-bar { height: 4px; border-radius: 2px; }
 
-  /* Side stack — health + pie vertical */
-  .side-stack { flex-direction: column; gap: 8px; }
+  /* ── Row 2 — stack everything vertically ── */
+  .row-2 { grid-template-columns: 1fr; gap: 12px; }
+  .tacho-card { display: none; }
 
-  /* Health card — compact */
-  .health-card { padding: 10px; }
-  .hc-head { font-size: 8px; margin-bottom: 8px; }
-  .hc-ring { width: 80px; height: 80px; }
-  .hc-val { font-size: 22px; }
-  .hc-grade { font-size: 10px; margin-top: 4px; margin-bottom: 6px; }
-  .hc-bars { gap: 5px; }
-  .hcb span { font-size: 8px; width: 48px; }
-  .hcb-track { height: 3px; }
-  .hcb b { font-size: 8px; width: 20px; }
+  /* ── Chart cards — full width, proper height ── */
+  .chart-card { border-radius: 14px; }
+  .cc-head { padding: 12px 14px 0; gap: 8px; }
+  .cc-head b { font-size: 12px; }
+  .cc-badge { font-size: 10px; padding: 2px 8px; border-radius: 6px; }
+  .cc-body { padding: 8px 12px; min-height: 180px; }
+  .cc-foot { padding: 8px 14px; gap: 12px; }
+  .cc-foot span { font-size: 10px; }
 
-  /* Pie card */
-  .pie-card { padding: 10px; }
-  .pc-head { font-size: 8px; margin-bottom: 6px; }
-  .pc-chart { height: 100px; }
+  /* ── Side stack — health + pie, full width ── */
+  .side-stack { flex-direction: column; gap: 12px; }
 
-  /* Alerts */
-  .alerts { gap: 4px; }
-  .al { font-size: 8px; padding: 3px 6px; border-radius: 4px; gap: 4px; }
-  .al-dot { width: 4px; height: 4px; }
+  /* ── Health card ── */
+  .health-card { padding: 16px; border-radius: 14px; }
+  .hc-head { font-size: 10px; margin-bottom: 12px; }
+  .hc-ring { width: 100px; height: 100px; margin-bottom: 12px; }
+  .hc-val { font-size: 28px; }
+  .hc-grade { font-size: 12px; margin-top: 6px; margin-bottom: 10px; }
+  .hc-bars { gap: 8px; }
+  .hcb span { font-size: 11px; width: 60px; }
+  .hcb-track { height: 5px; }
+  .hcb b { font-size: 11px; width: 28px; }
 
-  /* Modal — compact mobile */
-  .modal { padding: 12px; }
-  .modal-card { max-width: 340px; }
-  .modal-glyph { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 14px; }
-  .modal-glyph svg { width: 36px; height: 36px; }
-  .modal-h { font-size: 22px; margin-bottom: 4px; }
-  .modal-p { font-size: 11px; margin-bottom: 16px; }
-  .ms { padding: 8px 0; gap: 8px; }
-  .ms-n { width: 20px; height: 20px; border-radius: 5px; font-size: 9px; }
-  .ms-t b { font-size: 11px; }
-  .ms-t span { font-size: 9px; }
-  .mbtn { padding: 10px; font-size: 12px; border-radius: 8px; }
-  .dl-card { padding: 10px; gap: 8px; }
-  .dl-card small { font-size: 8px; }
-  .dl-btn { padding: 5px 10px; font-size: 9px; }
+  /* ── Pie card ── */
+  .pie-card { padding: 16px; border-radius: 14px; }
+  .pc-head { font-size: 10px; margin-bottom: 10px; }
+  .pc-chart { height: 160px; }
 
-  /* Sidebar inner elements */
-  .side-h { font-size: 9px; margin-bottom: 10px; }
-  .side-sh { font-size: 9px; margin-bottom: 6px; }
-  .side-btn { padding: 10px; font-size: 11px; border-radius: 8px; }
-  .side-ctrl-btn { font-size: 10px; padding: 8px; }
-  .spd-btn { font-size: 10px; padding: 7px 0; }
-  .mode-btn { font-size: 10px; padding: 7px 8px; }
-  .sl { padding: 7px 8px; }
-  .sl span { font-size: 11px; }
-  .sl b { font-size: 12px; }
-  .status-label { font-size: 11px; }
-  .status-sub { font-size: 9px; }
-  .side-status { padding: 10px; gap: 8px; }
+  /* ── Row 3 — stack charts vertically ── */
+  .row-3 { grid-template-columns: 1fr; gap: 12px; }
+
+  /* ── Modal — fills mobile screen properly ── */
+  .modal { padding: 20px; align-items: center; }
+  .modal-card { max-width: 100%; width: 100%; }
+  .modal-glyph { width: 64px; height: 64px; border-radius: 16px; margin-bottom: 16px; }
+  .modal-glyph svg { width: 40px; height: 40px; }
+  .modal-h { font-size: 26px; margin-bottom: 6px; }
+  .modal-p { font-size: 13px; margin-bottom: 24px; line-height: 1.5; }
+  .ms { padding: 12px 0; gap: 12px; }
+  .ms-n { width: 26px; height: 26px; border-radius: 7px; font-size: 11px; }
+  .ms-t b { font-size: 14px; }
+  .ms-t span { font-size: 12px; line-height: 1.4; }
+  .mbtn { padding: 14px; font-size: 14px; border-radius: 10px; min-height: 48px; }
+  .mc { padding: 16px; border-radius: 12px; min-height: 48px; }
+  .mc-top b { font-size: 14px; }
+  .mc p { font-size: 12px; }
+  .dl-card { padding: 14px; gap: 10px; border-radius: 12px; }
+  .dl-card b { font-size: 13px; }
+  .dl-card small { font-size: 11px; }
+  .dl-btn { padding: 8px 14px; font-size: 12px; border-radius: 8px; min-height: 40px; }
+  .modal-fine { font-size: 11px; }
 }
 
-/* Small phones */
-@media (max-width: 380px) {
-  .stat-row { grid-template-columns: 1fr 1fr; gap: 5px; }
-  .stat-card { padding: 8px; }
-  .sc-val { font-size: 20px; }
-  .sc-sub { font-size: 8px; }
-  .strip-logo { width: 26px; height: 26px; border-radius: 6px; }
-  .strip-logo svg { width: 16px; height: 16px; }
-  .main { padding: 6px 6px 70px; gap: 6px; }
-  .row-3 { gap: 6px; }
-  .chart-card { border-radius: 10px; }
-  .cc-body { min-height: 110px; }
-  .side-stack { gap: 6px; }
-  .hc-ring { width: 70px; height: 70px; }
-  .hc-val { font-size: 20px; }
+/* ── Small phones ── */
+@media (max-width: 400px) {
+  .stat-val { font-size: 24px; }
+  .stat-card { padding: 12px 10px; min-height: 72px; }
+  .cc-body { min-height: 150px; }
+  .pc-chart { height: 130px; }
+  .hc-ring { width: 85px; height: 85px; }
 }
