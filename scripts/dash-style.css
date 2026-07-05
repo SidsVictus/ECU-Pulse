@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: 'EaseBold';
-  src: url('./font/ease_bold/Ease Bold Demo.otf') format('opentype');
+  src: url('../font/ease_bold/Ease Bold Demo.otf') format('opentype');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -380,6 +380,66 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 /* Row 3 */
 .row-3 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
+/* ═══ SCANNING DIALOG ═══ */
+.scan-dialog {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(4,6,12,0.97); backdrop-filter: blur(40px);
+  padding: 24px;
+}
+.scan-card {
+  text-align: center; max-width: 360px; width: 100%;
+  animation: rise .5s cubic-bezier(.16,1,.3,1);
+}
+.scan-spinner {
+  position: relative; width: 100px; height: 100px; margin: 0 auto 24px;
+}
+.scan-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 3px solid transparent; border-top-color: var(--fire); border-right-color: var(--coral);
+  animation: scanSpin 1.2s linear infinite;
+}
+.scan-ring2 {
+  inset: 10px; border-top-color: var(--violet); border-right-color: var(--teal);
+  animation: scanSpin 1.8s linear infinite reverse;
+}
+@keyframes scanSpin { to { transform: rotate(360deg); } }
+.scan-icon {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  color: var(--fire); filter: drop-shadow(0 0 20px rgba(154,171,110,0.3));
+  animation: scanPulse 2s ease-in-out infinite;
+}
+@keyframes scanPulse { 0%, 100% { opacity: 0.6; transform: translate(-50%, -50%) scale(0.95); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); } }
+.scan-title {
+  font-family: var(--sans); font-size: 18px; font-weight: 700;
+  color: var(--text); margin-bottom: 8px;
+}
+.scan-sub {
+  font-size: 13px; color: var(--dim); margin-bottom: 20px; line-height: 1.5;
+}
+.scan-progress {
+  height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px;
+  overflow: hidden; margin-bottom: 16px;
+}
+.scan-bar {
+  height: 100%; width: 0%; border-radius: 2px;
+  background: linear-gradient(90deg, var(--fire), var(--coral), var(--violet));
+  transition: width .4s ease;
+}
+.scan-dots {
+  display: flex; gap: 6px; justify-content: center;
+}
+.scan-dots span {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--mute);
+  animation: scanDot 1.4s ease-in-out infinite;
+}
+.scan-dots span:nth-child(2) { animation-delay: 0.2s; }
+.scan-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes scanDot { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1.2); } }
+.scan-dialog.hidden { display: none; }
+
+[data-theme="light"] .scan-dialog { background: rgba(240,242,245,0.97); }
+
 /* ═══ ANIM ═══ */
 @keyframes rise { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes glow-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
@@ -389,10 +449,11 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 /* ── Tablet ── */
 @media (max-width: 1024px) {
   .stat-row { grid-template-columns: repeat(3, 1fr); }
-  .row-2 { grid-template-columns: 1fr; }
-  .tacho-card { display: none; }
-  .side-stack { flex-direction: row; }
+  .row-2 { grid-template-columns: 200px 1fr; gap: 12px; }
+  .side-stack { grid-column: 1 / -1; flex-direction: row; }
   .health-card, .pie-card { flex: 1; min-width: 0; }
+  .tacho { width: 150px; height: 150px; }
+  .tacho-val { font-size: 28px; }
 }
 
 /* ── Mobile — full redesign ── */
@@ -447,7 +508,13 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 
   /* ── Row 2 — stack everything vertically ── */
   .row-2 { grid-template-columns: 1fr; gap: 12px; }
-  .tacho-card { display: none; }
+  .tacho-card { padding: 14px; align-items: center; }
+  .tacho { width: 130px; height: 130px; }
+  .tacho-val { font-size: 24px; }
+  .tacho-lbl { font-size: 8px; letter-spacing: 2px; }
+  .tacho-head { margin-bottom: 6px; align-self: center; }
+  .tacho-meta { margin-top: 6px; gap: 14px; justify-content: center; }
+  .tacho-meta span { font-size: 9px; }
 
   /* ── Chart cards — full width, proper height ── */
   .chart-card { border-radius: 14px; }
@@ -509,4 +576,9 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
   .cc-body { min-height: 150px; }
   .pc-chart { height: 130px; }
   .hc-ring { width: 85px; height: 85px; }
+  .tacho { width: 100px; height: 100px; }
+  .tacho-val { font-size: 20px; }
+  .tacho-card { padding: 12px; }
+  .tacho-meta { gap: 10px; }
+  .tacho-meta span { font-size: 8px; }
 }

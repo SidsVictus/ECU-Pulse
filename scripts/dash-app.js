@@ -284,22 +284,116 @@
     $('mBtn').style.display = mStep === 1 ? 'none' : '';
   }
 
-  window.goDemo = function () { $('modal').style.display = 'none'; $('dash').classList.remove('hidden'); sStart = Date.now(); initCharts(); drawTachoTicks(); startLoop(); };
-  window.goLive = function () { $('modal').style.display = 'none'; $('dash').classList.remove('hidden'); sStart = Date.now(); initCharts(); drawTachoTicks(); startLoop(); };
+  const BRIDGE = 'http://localhost:8765';
+  let useBridge = false;
+
+  window.goDemo = function () {
+    $('modal').style.display = 'none';
+    $('dash').classList.remove('hidden');
+    useBridge = false;
+    sStart = Date.now();
+    initCharts(); drawTachoTicks(); startLoop();
+  };
+
+  window.goLive = function () {
+    $('modal').style.display = 'none';
+    $('scanDialog').classList.remove('hidden');
+    $('scanStatus').textContent = 'Connecting to ECU Pulse Bridge...';
+    $('scanBar').style.width = '15%';
+
+    const poll = setInterval(async () => {
+      try {
+        const r = await fetch(BRIDGE + '/status');
+        if (!r.ok) throw new Error('not ready');
+        const info = await r.json();
+
+        $('scanBar').style.width = '60%';
+        $('scanStatus').textContent = info.mode === 'scanning'
+          ? 'Scanning COM ports for adapter...'
+          : 'Adapter found. Initializing...';
+
+        if (info.mode === 'scanning') return;
+
+        clearInterval(poll);
+        $('scanBar').style.width = '100%';
+        $('scanStatus').textContent = info.mode === 'live'
+          ? 'Adapter connected. Starting live data...'
+          : 'No adapter found. Using bridge simulation...';
+
+        setTimeout(() => {
+          $('scanDialog').classList.add('hidden');
+          $('dash').classList.remove('hidden');
+          useBridge = true;
+          sStart = Date.now();
+          initCharts(); drawTachoTicks(); startBridgeLoop();
+        }, 800);
+      } catch (e) {
+        clearInterval(poll);
+        $('scanStatus').textContent = 'Bridge not found. Using local simulation...';
+        $('scanBar').style.width = '100%';
+        setTimeout(() => {
+          $('scanDialog').classList.add('hidden');
+          $('dash').classList.remove('hidden');
+          useBridge = false;
+          sStart = Date.now();
+          initCharts(); drawTachoTicks(); startLoop();
+        }, 1200);
+      }
+    }, 500);
+  };
+
+  function startBridgeLoop() {
+    if (loopId) clearInterval(loopId);
+    loopId = setInterval(async () => {
+      try {
+        const r = await fetch(BRIDGE + '/data');
+        if (!r.ok) throw new Error('not ready');
+        const d = await r.json();
+        const s = {
+          ts: Date.now(),
+          mode: d.mode || 'live',
+          rpm: d.rpm || 0,
+          spd: d.speed || 0,
+          gear: d.gear || 1,
+          et: d.engine_temp || 0,
+          egt: d.exhaust_temp || 0,
+          coolant: d.engine_temp || 0,
+          intake: d.intake_temp || 0,
+          load: d.engine_load || 0,
+          throttle: d.throttle || 0,
+          oil: d.oil_pressure || 0,
+          fuel_psi: d.fuel_pressure || 0,
+          bat: d.battery || 0,
+          afr: d.afr || 0,
+          vib: d.vibration || 0,
+          fl: 100
+        };
+        hist.push(s);
+        if (hist.length > MAX_HIST) hist.shift();
+        updUI(s, calcHealth(hist));
+        updCharts(); updClock();
+      } catch (e) {
+        useBridge = false;
+        clearInterval(loopId);
+        loopId = null;
+        startLoop();
+      }
+    }, rate);
+  }
 
   /* ═══ CONTROLS ═══ */
   window.toggleSide = function () { $('side').classList.toggle('open'); $('sideOverlay').classList.toggle('open'); };
 
   window.togglePause = function () {
     paused = !paused;
-    if (paused) { clearInterval(loopId); loopId = null; $('pauseBtn').textContent = 'Resume'; $('pauseBtn').classList.add('active'); $('statusDot').classList.add('paused'); $('statusLabel').textContent = 'Simulation Paused'; $('statusSub').textContent = 'Click resume to continue'; }
-    else { startLoop(); $('pauseBtn').textContent = 'Pause'; $('pauseBtn').classList.remove('active'); $('statusDot').classList.remove('paused'); $('statusLabel').textContent = 'Simulation Active'; $('statusSub').textContent = 'Physics engine running'; }
+    if (paused) { clearInterval(loopId); loopId = null; $('pauseBtn').textContent = 'Resume'; $('pauseBtn').classList.add('active'); $('statusDot').classList.add('paused'); $('statusLabel').textContent = useBridge ? 'Live Paused' : 'Simulation Paused'; $('statusSub').textContent = 'Click resume to continue'; }
+    else { useBridge ? startBridgeLoop() : startLoop(); $('pauseBtn').textContent = 'Pause'; $('pauseBtn').classList.remove('active'); $('statusDot').classList.remove('paused'); $('statusLabel').textContent = useBridge ? 'Live Active' : 'Simulation Active'; $('statusSub').textContent = useBridge ? 'Reading OBD2 data' : 'Physics engine running'; }
   };
 
   window.forceMode = function (m, el) {
     document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
     if (el) el.classList.add('active');
-    if (m === 'auto') { manualMode = null; $('statusDot').classList.remove('manual'); $('statusLabel').textContent = paused ? 'Simulation Paused' : 'Simulation Active'; $('statusSub').textContent = paused ? 'Click resume to continue' : 'Physics engine running'; }
+    if (m === 'auto') { manualMode = null; $('statusDot').classList.remove('manual'); $('statusLabel').textContent = paused ? (useBridge ? 'Live Paused' : 'Simulation Paused') : (useBridge ? 'Live Active' : 'Simulation Active'); $('statusSub').textContent = paused ? 'Click resume to continue' : (useBridge ? 'Reading OBD2 data' : 'Physics engine running'); }
     else { manualMode = m; E.mode = m; E.mt = 999; $('statusDot').classList.add('manual'); $('statusLabel').textContent = 'Manual Mode'; $('statusSub').textContent = `Locked to ${m}`; }
   };
 
@@ -314,7 +408,7 @@
     document.querySelectorAll('.spd-btn').forEach(b => { b.classList.toggle('active', b.dataset.rate === v); });
   };
 
-  window.setRate = function (v) { rate = +v; if (loopId) { clearInterval(loopId); startLoop(); } };
+  window.setRate = function (v) { rate = +v; if (loopId) { clearInterval(loopId); loopId = null; useBridge ? startBridgeLoop() : startLoop(); } };
 
   window.resetStats = function () {
     hist = []; peakRpm = 0; minRpm = Infinity; peakTemp = 0; peakLoad = 0;
