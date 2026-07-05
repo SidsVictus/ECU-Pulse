@@ -398,20 +398,18 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 /* ── Mobile — full redesign ── */
 @media (max-width: 768px) {
 
-  /* ── Hide non-essential header items ── */
-  .strip-title { display: none; }
-  .clock-pill { display: none; }
-  .csv-btn { display: none; }
-
   /* ── Header — clean, minimal, touch-friendly ── */
   .strip { height: 52px; padding: 0 12px; gap: 8px; }
   .strip-logo { width: 34px; height: 34px; border-radius: 8px; flex-shrink: 0; }
   .strip-logo svg { width: 20px; height: 20px; }
+  .strip-title { font-size: 16px; letter-spacing: 1px; }
   .strip-right { gap: 6px; }
-  .sel { height: 34px; font-size: 12px; padding: 0 8px; border-radius: 8px; }
-  .strip-btn { height: 34px; padding: 0 10px; border-radius: 8px; font-size: 12px; }
-  .theme-btn { width: 34px; padding: 0; display: flex; align-items: center; justify-content: center; }
-  .strip-btn[onclick*="toggleSide"] { width: 34px; padding: 0; font-size: 18px; display: flex; align-items: center; justify-content: center; }
+  .pill { height: 30px; font-size: 9px; padding: 0 8px; }
+  .sel { height: 30px; font-size: 11px; padding: 0 6px; border-radius: 8px; }
+  .strip-btn { height: 30px; padding: 0 8px; border-radius: 8px; font-size: 11px; }
+  .csv-btn { display: none; }
+  .theme-btn { width: 30px; padding: 0; display: flex; align-items: center; justify-content: center; }
+  .strip-btn[onclick*="toggleSide"] { width: 30px; padding: 0; font-size: 18px; display: flex; align-items: center; justify-content: center; }
 
   /* ── Sidebar — full-screen overlay ── */
   .side { width: 100%; top: 0; bottom: 0; right: 0; padding: 64px 20px 20px; }
