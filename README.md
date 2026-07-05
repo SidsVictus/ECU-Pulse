@@ -1,70 +1,42 @@
-<p align="center">
-  <a href="https://ecupulse.surge.sh">
-    <img src="gear-wheel-readme.svg" alt="ECU Pulse" width="100">
-  </a>
-</p>
+# ECU Pulse
 
-<h1 align="center">ECU Pulse</h1>
+A real-time engine monitoring dashboard for bikes and cars.
+Connects to any ELM327 OBD2 adapter to display live engine
+data, or runs in demo mode with simulated engine data.
 
-<p align="center">
-  Real-time engine monitoring dashboard for bikes and cars.
-</p>
+## Compatibility:
 
-<p align="center">
-  <a href="https://ecupulse.surge.sh">Live Demo</a>
-  &nbsp;&bull;&nbsp;
-  <a href="https://github.com/SidsVictus/ECU-Pulse/blob/main/ECU-Pulse.pdf">Documentation</a>
-  &nbsp;&bull;&nbsp;
-  <a href="https://github.com/SidsVictus/ECU-Pulse/releases">Releases</a>
-</p>
+**OBD2 compatibility** - Works with any ELM327 based OBD2 adapter.
+This covers the vast majority of adapters
+available on Amazon and electronics shops.
 
----
+**Compatible connection types:**
+-USB (recommended)
 
-## About
+**Compatible vehicles:**
+-Any bike or car with fuel injection (FI)
+-Most vehicles manufactured after 2010
+-Carburettor engines are not supported
 
-ECU Pulse connects to any ELM327 OBD2 adapter and displays live engine data in a browser-based dashboard. It reads RPM, speed, temperatures, air-fuel ratio, and other sensor data in real time. If no adapter is connected, it runs a physics-based simulation that mimics real engine behavior.
+## Download: 
+Available in releases as **Version 1.0.0**
 
-## Features
+## Steps:
 
-- **Live Sensor Data** — RPM, speed, engine temp, exhaust temp, throttle, battery, AFR, and more
-- **Interactive Charts** — RPM timeline, temperature profile, load & throttle, riding mode breakdown
-- **Engine Health Score** — Aggregated from engine, thermal, fueling, electrical, and mechanical subsystems
-- **CSV Import & Export** — Record sessions and replay them later
-- **Simulation Mode** — Physics-based engine sim with idle, city, highway, aggressive, and decel modes
-- **Adjustable Speed** — 0.25x to 2x playback control
-- **Dark & Light Theme** — Toggle between themes
-- **Mobile Responsive** — Works on phones, tablets, and desktops
+Download ECU_OBD2_Bridge.exe   
+Plug OBD2 cable into your bike or car   
+Plug USB end into your laptop   
+Double-click ECU_OBD2_Bridge.exe   
+Open the dashboard and select Live OBD2 Mode   
+*For devs who are interested in seeing obd2 working in python,    
+download **obd2_bridge.py** in your system and double click, the terminal will open.*    
 
-## Getting Started
-
-### Live Mode (OBD2)
-
-1. Download [`ECU_OBD2_Bridge.exe`](https://github.com/SidsVictus/ECU-Pulse/releases/latest/download/ECU_OBD2_Bridge.exe) from releases
-2. Plug the OBD2 adapter into your vehicle and connect the USB end to your laptop
-3. Run `ECU_OBD2_Bridge.exe`
-4. Open the [dashboard](https://ecupulse.surge.sh/dashboard) and select **Live OBD2**
-
-### Simulation Mode
-
-1. Open the [dashboard](https://ecupulse.surge.sh/dashboard)
-2. Select **Simulation** — no hardware required
-
-## Compatibility
-
-| | Details |
-|---|---|
-| **Adapter** | Any ELM327-based OBD2 adapter (USB recommended) |
-| **Connection** | USB, Bluetooth ELM327 v1.5 |
-| **Vehicles** | Fuel-injected bikes and cars, mostly post-2010 |
-| **OS** | Windows (for the bridge), any OS for the dashboard |
-
-## Tech Stack
-
-- **Frontend** — Vanilla HTML, CSS, JavaScript
-- **Charts** — [Chart.js](https://www.chartjs.org/)
-- **Backend** — Python, Flask, [python-OBD](https://github.com/brendan-w/python-OBD)
-- **Font** — [Poppins](https://fonts.google.com/specimen/Poppins) (Google Fonts)
+**Windows SmartScreen:**
+Windows may show a warning when running the file.
+Click More info then Run anyway.
+This is normal for new applications without a
+paid code signing certificate.
 
 ## License
 
-Distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
+MIT License — free to use, modify and distribute.
