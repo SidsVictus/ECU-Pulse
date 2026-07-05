@@ -1,6 +1,6 @@
 <p align="center">
   <a href="https://ecupulse.surge.sh">
-    <img src="gear-wheel-readme.svg" alt="ECU Pulse" width="100">
+    <img src="font/gear-wheel-readme.svg" alt="ECU Pulse" width="100">
   </a>
 </p>
 
