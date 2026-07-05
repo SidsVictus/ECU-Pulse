@@ -58,13 +58,6 @@ ECU Pulse connects to any ELM327 OBD2 adapter and displays live engine data in a
 | **Vehicles** | Fuel-injected bikes and cars, mostly post-2010 |
 | **OS** | Windows (for the bridge), any OS for the dashboard |
 
-## Tech Stack
-
-- **Frontend** — Vanilla HTML, CSS, JavaScript
-- **Charts** — [Chart.js](https://www.chartjs.org/)
-- **Backend** — Python, Flask, [python-OBD](https://github.com/brendan-w/python-OBD)
-- **Font** — [Poppins](https://fonts.google.com/specimen/Poppins) (Google Fonts)
-
 ## License
 
 Distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
