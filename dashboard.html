@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECU Pulse</title>
+  <link rel="icon" href="https://www.svgrepo.com/show/16238/gear-wheel.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="dash-style.css">
+</head>
+<body>
+
+  <!-- MODAL -->
+  <div class="modal" id="modal">
+    <div class="modal-card">
+      <div class="modal-glyph">
+        <svg viewBox="0 0 421.651 421.651" fill="currentColor" width="48" height="48"><path d="M412.326,179.386h-25.838c-4.847-25.694-15.26-50.06-30.467-71.292l17.936-17.937c1.745-1.749,2.726-4.107,2.726-6.588c0-2.47-0.98-4.842-2.726-6.591l-31.3-31.294c-3.64-3.637-9.538-3.637-13.18,0l-18.466,18.465c-21.044-14.391-44.94-24.17-69.915-28.602V9.318c0-5.148-4.175-9.318-9.316-9.318h-44.265c-5.144,0-9.315,4.17-9.315,9.318v26.229c-25.183,4.468-49.248,14.364-70.415,28.925L89.81,46.513c-3.637-3.642-9.535-3.642-13.18,0L45.337,77.812c-1.749,1.751-2.729,4.115-2.729,6.591s0.98,4.84,2.729,6.589l17.6,17.601c-15.022,21.13-25.322,45.319-30.129,70.793H9.319c-5.143,0-9.319,4.161-9.319,9.316v44.258c0,5.154,4.176,9.319,9.319,9.319h22.709c4.276,25.663,14.185,50.232,28.988,71.868l-16.508,16.504c-3.637,3.639-3.637,9.537,0,13.177l31.3,31.311c1.748,1.747,4.12,2.725,6.59,2.725s4.84-0.985,6.588-2.725l15.987-15.977c21.814,15.615,46.851,26.176,73.231,30.839v22.33c0,5.149,4.172,9.319,9.317,9.319h44.263c5.143,0,9.312-4.17,9.312-9.319v-22.33c26.169-4.63,51.032-15.065,72.739-30.507l16.477,16.468c3.498,3.494,9.686,3.494,13.177,0l31.299-31.302c3.64-3.646,3.64-9.533,0-13.177l-16.843-16.854c14.993-21.768,25.019-46.49,29.327-72.361h25.06c5.146,0,9.319-4.158,9.319-9.312v-44.258C421.645,183.547,417.471,179.386,412.326,179.386z M210.82,309.063c-54.252,0-98.23-43.979-98.23-98.233c0-54.25,43.979-98.232,98.23-98.232c54.255,0,98.229,43.976,98.229,98.232C309.049,265.085,265.075,309.063,210.82,309.063z M248.089,210.83c0,20.586-16.688,37.271-37.27,37.271c-20.581,0-37.271-16.686-37.271-37.271c0-20.585,16.691-37.271,37.271-37.271C231.402,173.56,248.089,190.245,248.089,210.83z"/></svg>
+      </div>
+      <h1 class="modal-h">ECU Pulse</h1>
+      <p class="modal-p">Real-time IC engine intelligence. Connect OBD2 or run simulation.</p>
+      <div class="modal-steps" id="mSteps">
+        <div class="ms"><div class="ms-n">1</div><div class="ms-t"><b>Locate OBD2 port</b><span>Bikes: under seat. Cars: under dash.</span></div></div>
+        <div class="ms"><div class="ms-n">2</div><div class="ms-t"><b>Plug in adapter</b><span>Cable to vehicle, USB to laptop.</span></div></div>
+        <div class="ms"><div class="ms-n">3</div><div class="ms-t"><b>Ignition ON</b><span>Device detected automatically.</span></div></div>
+      </div>
+      <div class="modal-modes" id="mModes" style="display:none">
+        <div class="mc" onclick="setMPath('live');mNext()"><div class="mc-top"><b>Live OBD2</b><span class="mc-arr">→</span></div><p>Real-time vehicle data via adapter.</p></div>
+        <div class="mc" onclick="goDemo()"><div class="mc-top"><b>Simulation</b><span class="mc-arr">→</span></div><p>Physics-based engine sim. No hardware.</p></div>
+      </div>
+      <div class="modal-dl" id="mDl" style="display:none">
+        <div class="dl-card"><div><b>ECU_OBD2_Bridge.exe</b><small>~18 MB    · Windows    · GitHub    </small></div><a class="dl-btn" href="https://github.com/SidsVictus/ECU-Pulse/releases/latest/download/ECU_OBD2_Bridge.exe" target="_blank">Download</a></div>
+        <div class="ms"><div class="ms-n">1</div><div class="ms-t"><b>Ignore warning</b><span>When the purple warning dialog appears, click More info, then Run anyway.</span></div></div>
+        <div class="ms"><div class="ms-n">2</div><div class="ms-t"><b>Run Bridge</b><span>Double-click. Runs silently.</span></div></div>
+        <div class="ms"><div class="ms-n">3</div><div class="ms-t"><b>Connect cable</b><span>OBD2 → vehicle, USB → laptop.</span></div></div>
+        <div class="ms"><div class="ms-n">4</div><div class="ms-t"><b>Start below</b><span>Dashboard auto-connects.</span></div></div>
+      </div>
+      <div class="modal-btns">
+        <button class="mbtn primary" id="mBtn" onclick="mNext()">Begin →</button>
+        <button class="mbtn ghost" id="mBack" onclick="mPrev()" style="display:none">← Back</button>
+      </div>
+      <div class="modal-fine" id="mFine">No cable? Demo mode works instantly.</div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dash hidden" id="dash">
+
+    <header class="strip">
+      <a href="index.html" class="strip-logo">
+        <svg viewBox="0 0 421.651 421.651" fill="currentColor" width="20" height="20"><path d="M412.326,179.386h-25.838c-4.847-25.694-15.26-50.06-30.467-71.292l17.936-17.937c1.745-1.749,2.726-4.107,2.726-6.588c0-2.47-0.98-4.842-2.726-6.591l-31.3-31.294c-3.64-3.637-9.538-3.637-13.18,0l-18.466,18.465c-21.044-14.391-44.94-24.17-69.915-28.602V9.318c0-5.148-4.175-9.318-9.316-9.318h-44.265c-5.144,0-9.315,4.17-9.315,9.318v26.229c-25.183,4.468-49.248,14.364-70.415,28.925L89.81,46.513c-3.637-3.642-9.535-3.642-13.18,0L45.337,77.812c-1.749,1.751-2.729,4.115-2.729,6.591s0.98,4.84,2.729,6.589l17.6,17.601c-15.022,21.13-25.322,45.319-30.129,70.793H9.319c-5.143,0-9.319,4.161-9.319,9.316v44.258c0,5.154,4.176,9.319,9.319,9.319h22.709c4.276,25.663,14.185,50.232,28.988,71.868l-16.508,16.504c-3.637,3.639-3.637,9.537,0,13.177l31.3,31.311c1.748,1.747,4.12,2.725,6.59,2.725s4.84-0.985,6.588-2.725l15.987-15.977c21.814,15.615,46.851,26.176,73.231,30.839v22.33c0,5.149,4.172,9.319,9.317,9.319h44.263c5.143,0,9.312-4.17,9.312-9.319v-22.33c26.169-4.63,51.032-15.065,72.739-30.507l16.477,16.468c3.498,3.494,9.686,3.494,13.177,0l31.299-31.302c3.64-3.646,3.64-9.533,0-13.177l-16.843-16.854c14.993-21.768,25.019-46.49,29.327-72.361h25.06c5.146,0,9.319-4.158,9.319-9.312v-44.258C421.645,183.547,417.471,179.386,412.326,179.386z M210.82,309.063c-54.252,0-98.23-43.979-98.23-98.233c0-54.25,43.979-98.232,98.23-98.232c54.255,0,98.229,43.976,98.229,98.232C309.049,265.085,265.075,309.063,210.82,309.063z M248.089,210.83c0,20.586-16.688,37.271-37.27,37.271c-20.581,0-37.271-16.686-37.271-37.271c0-20.585,16.691-37.271,37.271-37.271C231.402,173.56,248.089,190.245,248.089,210.83z"/></svg>
+      </a>
+      <span class="strip-title">ECU pulse</span>
+      <div class="strip-right">
+        <span class="pill clock-pill" id="clock">00:00</span>
+        <select class="sel" id="selRate" onchange="setRate(this.value);syncSpdBtns(this.value)"><option value="2000">2s</option><option value="1000">1s</option><option value="500">0.5s</option></select>
+        <button class="strip-btn csv-btn" onclick="importCsv()">Import CSV ↓</button>
+        <button class="strip-btn csv-btn" onclick="exportCsv()">Export CSV ↑</button>
+        <button class="strip-btn theme-btn" onclick="toggleTheme()" id="themeBtn" title="Toggle theme">
+          <svg id="iconSun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg id="iconMoon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="strip-btn" onclick="toggleSide()">☰</button>
+      </div>
+    </header>
+
+    <div class="side-overlay" id="sideOverlay" onclick="toggleSide()"></div>
+    <aside class="side" id="side">
+      <div class="side-h">CONTROL PANEL</div>
+
+      <div class="side-status" id="sideStatus">
+        <div class="status-dot" id="statusDot"></div>
+        <div class="status-info">
+          <span class="status-label" id="statusLabel">Simulation Active</span>
+          <span class="status-sub" id="statusSub">Physics engine running</span>
+        </div>
+      </div>
+
+      <div class="side-section">
+        <div class="side-sh">SIMULATION</div>
+        <div class="side-controls">
+          <button class="side-ctrl-btn" id="pauseBtn" onclick="togglePause()">Pause</button>
+          <button class="side-ctrl-btn" onclick="resetStats()">Reset</button>
+        </div>
+        <div class="side-speed">
+          <span class="side-sh">SPEED</span>
+          <div class="speed-btns">
+            <button class="spd-btn" data-rate="4000" onclick="setRate(4000);setActiveSpd(this)">0.25x</button>
+            <button class="spd-btn" data-rate="2000" onclick="setRate(2000);setActiveSpd(this)">0.5x</button>
+            <button class="spd-btn active" data-rate="1000" onclick="setRate(1000);setActiveSpd(this)">1x</button>
+            <button class="spd-btn" data-rate="500" onclick="setRate(500);setActiveSpd(this)">2x</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-section">
+        <div class="side-sh">MODE OVERRIDE</div>
+        <div class="mode-btns">
+          <button class="mode-btn" onclick="forceMode('idle',this)">Idle</button>
+          <button class="mode-btn" onclick="forceMode('city',this)">City</button>
+          <button class="mode-btn" onclick="forceMode('highway',this)">Hwy</button>
+          <button class="mode-btn" onclick="forceMode('aggressive',this)">Aggro</button>
+          <button class="mode-btn" onclick="forceMode('decel',this)">Decel</button>
+          <button class="mode-btn active" onclick="forceMode('auto',this)">Auto</button>
+        </div>
+      </div>
+
+      <div class="side-sep"></div>
+
+      <div class="side-section">
+        <div class="side-sh">ALL SENSOR DATA</div>
+        <div class="sl"><span>Battery</span><b id="sBat">—</b></div>
+        <div class="sl"><span>Oil Press</span><b id="sOil">—</b></div>
+        <div class="sl"><span>Fuel Press</span><b id="sFuelP">—</b></div>
+        <div class="sl"><span>MAP</span><b id="sMap">—</b></div>
+        <div class="sl"><span>Intake Temp</span><b id="sIntake">—</b></div>
+        <div class="sl"><span>Coolant</span><b id="sCoolant">—</b></div>
+        <div class="sl"><span>Vibration</span><b id="sVib">—</b></div>
+        <div class="sl"><span>Fuel Level</span><b id="sFuel">—</b></div>
+        <div class="sl"><span>Throttle</span><b id="sThr">—</b></div>
+        <div class="sl"><span>Gear</span><b id="sGear">—</b></div>
+        <div class="sl"><span>Mode</span><b id="sMode">—</b></div>
+      </div>
+
+      <div class="side-sep"></div>
+
+      <div class="side-section">
+        <div class="side-sh">ACTIONS</div>
+        <button class="side-btn" onclick="importCsv()">Import CSV</button>
+        <button class="side-btn" onclick="exportCsv()">Export CSV</button>
+        <button class="side-btn side-btn-ghost" onclick="copySnapshot()">Copy Snapshot</button>
+      </div>
+    </aside>
+
+    <main class="main" id="main">
+
+      <div class="alerts" id="alerts"></div>
+
+      <div class="stat-row">
+        <div class="stat-card sc-cyan">
+          <div class="sc-head"><span class="sc-label">BATTERY</span></div>
+          <div class="sc-val" id="vBat">—</div>
+          <div class="sc-sub" id="vBatSub">Normal voltage</div>
+          <div class="sc-bar"><div class="sc-bar-fill cyan-fill" id="barBat" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card sc-gold">
+          <div class="sc-head"><span class="sc-label">ENGINE TEMP</span></div>
+          <div class="sc-val" id="vTemp">—</div>
+          <div class="sc-sub" id="vTempSub">Normal range</div>
+          <div class="sc-bar"><div class="sc-bar-fill gold-fill" id="barTemp" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card sc-coral">
+          <div class="sc-head"><span class="sc-label">EXHAUST</span></div>
+          <div class="sc-val" id="vEgt">—</div>
+          <div class="sc-sub" id="vEgtSub">Safe range</div>
+          <div class="sc-bar"><div class="sc-bar-fill coral-fill" id="barEgt" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card sc-violet">
+          <div class="sc-head"><span class="sc-label">ENGINE LOAD</span></div>
+          <div class="sc-val" id="vLoad">—</div>
+          <div class="sc-sub" id="vLoadSub">Moderate</div>
+          <div class="sc-bar"><div class="sc-bar-fill violet-fill" id="barLoad" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card sc-sky">
+          <div class="sc-head"><span class="sc-label">SPEED</span></div>
+          <div class="sc-val" id="vSpeed">—</div>
+          <div class="sc-sub" id="vSpeedSub">Gear 1</div>
+          <div class="sc-bar"><div class="sc-bar-fill sky-fill" id="barSpeed" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card sc-mint">
+          <div class="sc-head"><span class="sc-label">AFR</span></div>
+          <div class="sc-val" id="vAfr">—</div>
+          <div class="sc-sub" id="vAfrSub">Stoichiometric</div>
+          <div class="sc-bar"><div class="sc-bar-fill mint-fill" id="barAfr" style="width:0%"></div></div>
+        </div>
+      </div>
+
+      <div class="row-2">
+        <div class="tacho-card">
+          <div class="tacho-head">TACHOMETER</div>
+          <div class="tacho">
+            <svg viewBox="0 0 200 200" class="tacho-svg">
+              <defs>
+                <linearGradient id="gArc" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#ffd166"/>
+                  <stop offset="50%" stop-color="#ff8c42"/>
+                  <stop offset="100%" stop-color="#ef476f"/>
+                </linearGradient>
+              </defs>
+              <circle cx="100" cy="100" r="85" fill="none" stroke="rgba(128,128,128,0.1)" stroke-width="10" stroke-dasharray="4 4"/>
+              <circle cx="100" cy="100" r="85" fill="none" stroke="url(#gArc)" stroke-width="12" stroke-linecap="round" stroke-dasharray="0 534" transform="rotate(-225 100 100)" id="tachoArc"/>
+              <g id="tachoTicks" opacity="0.4"></g>
+            </svg>
+            <div class="tacho-center">
+              <div class="tacho-val" id="tachoVal">0</div>
+              <div class="tacho-lbl">RPM</div>
+            </div>
+          </div>
+          <div class="tacho-meta">
+            <span>Redline <b>9,500</b></span>
+            <span>Peak <b id="tachoPeak">0</b></span>
+          </div>
+        </div>
+
+        <div class="chart-card cc-fire">
+          <div class="cc-head"><span class="cc-dot fire-dot"></span><b>RPM Timeline</b><span class="cc-badge" id="cbRpm">—</span></div>
+          <div class="cc-body"><canvas id="cRpm"></canvas></div>
+          <div class="cc-foot"><span>Peak <b id="fPeakRpm">—</b></span><span>Min <b id="fMinRpm">—</b></span></div>
+        </div>
+
+        <div class="side-stack">
+          <div class="health-card">
+            <div class="hc-head">ENGINE HEALTH</div>
+            <div class="hc-ring">
+              <svg viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="50" fill="none" stroke="rgba(128,128,128,0.1)" stroke-width="8"/>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#34d399" stroke-width="8" stroke-linecap="round" stroke-dasharray="0 314" transform="rotate(-90 60 60)" id="healthArc" style="transition:stroke-dasharray .8s,stroke .5s"/>
+              </svg>
+              <div class="hc-center"><div class="hc-val" id="healthVal">100</div></div>
+            </div>
+            <div class="hc-grade" id="healthGrade">- Excellent</div>
+            <div class="hc-bars">
+              <div class="hcb"><span>Engine</span><div class="hcb-track"><div class="hcb-fill" id="hb1" style="width:100%"></div></div><b id="hb1v">100</b></div>
+              <div class="hcb"><span>Thermal</span><div class="hcb-track"><div class="hcb-fill" id="hb2" style="width:100%"></div></div><b id="hb2v">100</b></div>
+              <div class="hcb"><span>Fueling</span><div class="hcb-track"><div class="hcb-fill" id="hb3" style="width:100%"></div></div><b id="hb3v">100</b></div>
+              <div class="hcb"><span>Electrical</span><div class="hcb-track"><div class="hcb-fill" id="hb4" style="width:100%"></div></div><b id="hb4v">100</b></div>
+              <div class="hcb"><span>Mechanical</span><div class="hcb-track"><div class="hcb-fill" id="hb5" style="width:100%"></div></div><b id="hb5v">100</b></div>
+            </div>
+          </div>
+          <div class="pie-card">
+            <div class="pc-head">RIDING MODES</div>
+            <div class="pc-chart"><canvas id="cPie"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row-3">
+        <div class="chart-card cc-gold">
+          <div class="cc-head"><span class="cc-dot gold-dot"></span><b>Temperature Profile</b><span class="cc-badge" id="cbTemp">—</span></div>
+          <div class="cc-body"><canvas id="cTemp"></canvas></div>
+          <div class="cc-foot"><span>Peak <b id="fPeakTemp">—</b></span><span>EGT <b id="fLiveEgt">—</b></span><span>Safe &lt;100°C</span></div>
+        </div>
+        <div class="chart-card cc-violet">
+          <div class="cc-head"><span class="cc-dot violet-dot"></span><b>Load & Throttle</b><span class="cc-badge" id="cbLoad">—</span></div>
+          <div class="cc-body"><canvas id="cLoad"></canvas></div>
+          <div class="cc-foot"><span>Peak <b id="fPeakLoad">—</b></span><span>Avg <b id="fAvgLoad">—</b></span></div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="dash-app.js"></script>
+</body>
+</html>

@@ -352,26 +352,24 @@ def api_export():
         return "No data", 204
 
     headers = [
-        "timestamp_ms", "elapsed_s", "mode",
-        "rpm", "speed_kmh", "gear",
-        "engine_temp_c", "exhaust_temp_c", "coolant_temp_c", "intake_air_temp_c",
-        "engine_load_pct", "throttle_pct",
-        "oil_pressure_bar", "fuel_pressure_bar",
-        "battery_voltage_v", "afr", "map_sensor_kpa",
-        "vibration", "fuel_level_pct",
+        "timestamp", "mode",
+        "rpm", "speed", "gear",
+        "engine_temp", "exhaust_gas_temp", "coolant_temp", "intake_air_temp",
+        "engine_load", "throttle",
+        "oil_pressure", "fuel_pressure",
+        "battery_voltage", "air_fuel_ratio", "manifold_pressure",
+        "vibration", "fuel_level",
     ]
 
-    lines = [",".join(headers)]
-    for s in snaps:
-        lines.append(",".join(str(s.get(k.replace("_c","").replace("_kmh","").replace("_pct","")
-                                        .replace("_bar","").replace("_v","").replace("_kpa",""), ""))
-                              for k in headers))
-    # Proper mapping
     rows = []
     for s in snaps:
+        ts_raw = s.get("timestamp", "")
+        try:
+            ts_str = datetime.fromtimestamp(int(ts_raw) / 1000).strftime("%Y-%m-%d %H:%M:%S")
+        except (ValueError, TypeError, OSError):
+            ts_str = str(ts_raw)
         rows.append(",".join([
-            str(s.get("timestamp",       "")),
-            str(s.get("elapsed_s",       "")),
+            ts_str,
             str(s.get("mode",            "")),
             str(s.get("rpm",             "")),
             str(s.get("speed",           "")),

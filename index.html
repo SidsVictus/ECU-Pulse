@@ -1,16 +1,308 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙</text></svg>" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ECU Dashboard — IC Engine Monitor</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ECU Pulse</title>
+  <meta name="description" content="Real-time IC engine monitoring dashboard. Live telemetry, health scoring, charts, CSV export — with OBD2 or built-in physics simulation.">
+  <link rel="icon" href="https://www.svgrepo.com/show/16238/gear-wheel.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <canvas id="particles"></canvas>
+
+  <svg style="position:absolute;width:0;height:0">
+    <defs>
+      <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#9aab6e"/>
+        <stop offset="100%" stop-color="#e07868"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <nav class="nav" id="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">
+        <svg class="gear-icon" viewBox="0 0 421.651 421.651" fill="url(#grad)"><path d="M412.326,179.386h-25.838c-4.847-25.694-15.26-50.06-30.467-71.292l17.936-17.937c1.745-1.749,2.726-4.107,2.726-6.588c0-2.47-0.98-4.842-2.726-6.591l-31.3-31.294c-3.64-3.637-9.538-3.637-13.18,0l-18.466,18.465c-21.044-14.391-44.94-24.17-69.915-28.602V9.318c0-5.148-4.175-9.318-9.316-9.318h-44.265c-5.144,0-9.315,4.17-9.315,9.318v26.229c-25.183,4.468-49.248,14.364-70.415,28.925L89.81,46.513c-3.637-3.642-9.535-3.642-13.18,0L45.337,77.812c-1.749,1.751-2.729,4.115-2.729,6.591s0.98,4.84,2.729,6.589l17.6,17.601c-15.022,21.13-25.322,45.319-30.129,70.793H9.319c-5.143,0-9.319,4.161-9.319,9.316v44.258c0,5.154,4.176,9.319,9.319,9.319h22.709c4.276,25.663,14.185,50.232,28.988,71.868l-16.508,16.504c-3.637,3.639-3.637,9.537,0,13.177l31.3,31.311c1.748,1.747,4.12,2.725,6.59,2.725s4.84-0.985,6.588-2.725l15.987-15.977c21.814,15.615,46.851,26.176,73.231,30.839v22.33c0,5.149,4.172,9.319,9.317,9.319h44.263c5.143,0,9.312-4.17,9.312-9.319v-22.33c26.169-4.63,51.032-15.065,72.739-30.507l16.477,16.468c3.498,3.494,9.686,3.494,13.177,0l31.299-31.302c3.64-3.646,3.64-9.533,0-13.177l-16.843-16.854c14.993-21.768,25.019-46.49,29.327-72.361h25.06c5.146,0,9.319-4.158,9.319-9.312v-44.258C421.645,183.547,417.471,179.386,412.326,179.386z M210.82,309.063c-54.252,0-98.23-43.979-98.23-98.233c0-54.25,43.979-98.232,98.23-98.232c54.255,0,98.229,43.976,98.229,98.232C309.049,265.085,265.075,309.063,210.82,309.063z M248.089,210.83c0,20.586-16.688,37.271-37.27,37.271c-20.581,0-37.271-16.686-37.271-37.271c0-20.585,16.691-37.271,37.271-37.271C231.402,173.56,248.089,190.245,248.089,210.83z"/></svg>
+        <span>ECU Pulse</span>
+      </a>
+      <div class="nav-links">
+        <a href="#features">Features</a>
+        <a href="#specs">Specs</a>
+        <a href="#how">How It Works</a>
+      </div>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-bg">
+      <div class="grid-overlay"></div>
+      <div class="radial-glow"></div>
+    </div>
+
+    <div class="hero-content">
+      <h1 class="hero-title" data-reveal>
+        <span class="line">Every RPM.</span>
+        <span class="line accent">Every Degree.</span>
+        <span class="line">Every Decision.</span>
+      </h1>
+
+      <div class="hero-actions" data-reveal>
+        <a href="dashboard.html" class="btn-primary">
+          <span class="btn-glow"></span>
+          Launch Dashboard
+        </a>
+        <a href="ECU Pulse.pdf" target="_blank" class="btn-ghost">Explore Document</a>
+      </div>
+
+      <div class="hero-stats" data-reveal>
+        <div class="hero-stat">
+          <div class="hero-stat-val" data-count="16">0</div>
+          <div class="hero-stat-label">Sensors</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" data-count="5">0</div>
+          <div class="hero-stat-label">Health Metrics</div>
+        </div>
+        <div class="hero-stat-divider"></div>
+        <div class="hero-stat">
+          <div class="hero-stat-val" data-count="1" data-decimal="true">0</div>
+          <div class="hero-stat-label">Sec Default Rate</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-visual" data-reveal>
+      <div class="dashboard-preview">
+        <div class="preview-bar">
+          <div class="preview-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <span class="preview-url">ecupulse.surge.sh/dashboard</span>
+        </div>
+        <div class="preview-body">
+          <div class="preview-stat-row">
+            <div class="preview-stat">
+              <div class="ps-icon blue"></div>
+              <div class="ps-data">
+                <div class="ps-label">RPM</div>
+                <div class="ps-value" id="previewRpm">4,280</div>
+              </div>
+            </div>
+            <div class="preview-stat">
+              <div class="ps-icon amber"></div>
+              <div class="ps-data">
+                <div class="ps-label">Engine Temp</div>
+                <div class="ps-value" id="previewTemp">87.3°C</div>
+              </div>
+            </div>
+            <div class="preview-stat">
+              <div class="ps-icon rose"></div>
+              <div class="ps-data">
+                <div class="ps-label">Exhaust</div>
+                <div class="ps-value" id="previewEgt">612°C</div>
+              </div>
+            </div>
+            <div class="preview-stat">
+              <div class="ps-icon teal"></div>
+              <div class="ps-data">
+                <div class="ps-label">Load</div>
+                <div class="ps-value" id="previewLoad">62%</div>
+              </div>
+            </div>
+          </div>
+          <div class="preview-chart">
+            <canvas id="previewCanvas"></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="section" id="features">
+    <div class="section-inner">
+      <div class="section-badge" data-reveal>Capabilities</div>
+      <h2 class="section-title" data-reveal>Engine Intelligence, <span class="accent">Reimagined</span></h2>
+      <p class="section-sub" data-reveal>Everything you need to monitor, diagnose, and understand your engine — built for engineers, tuned for clarity.</p>
+
+      <div class="features-grid">
+        <div class="feature-card" data-reveal>
+          <div class="feature-icon live">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <h3>Real-Time Telemetry</h3>
+          <p>16 sensor parameters — RPM, temperatures, load, AFR, oil pressure, battery, vibration, MAP, and more. 6 primary cards plus 10 sidebar readings.</p>
+        </div>
+
+        <div class="feature-card" data-reveal>
+          <div class="feature-icon health">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+          <h3>Health Scoring</h3>
+          <p>5-factor diagnostic engine — Engine, Thermal, Fueling, Electrical, and Mechanical health with weighted scoring and letter grades (A–D).</p>
+        </div>
+
+        <div class="feature-card" data-reveal>
+          <div class="feature-icon chart">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <h3>Live Charts</h3>
+          <p>RPM timeline with redline markers, temperature profile, load &amp; throttle curves, and riding mode distribution — all interactive.</p>
+        </div>
+
+        <div class="feature-card" data-reveal>
+          <div class="feature-icon alert">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <h3>Smart Alerts</h3>
+          <p>Threshold-based monitoring — redline warnings, thermal alerts, oil pressure drops, lean/rich mixture, and low battery detection.</p>
+        </div>
+
+        <div class="feature-card" data-reveal>
+          <div class="feature-icon export">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          </div>
+          <h3>CSV Import &amp; Export</h3>
+          <p>Export full session data to CSV with timestamps. Re-import CSVs to replay recorded sessions at adjustable speed.</p>
+        </div>
+
+        <div class="feature-card" data-reveal>
+          <div class="feature-icon sim">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </div>
+          <h3>Physics Simulation</h3>
+          <p>Built-in IC engine sim with realistic RPM curves, thermal dynamics, gear shifting, and 5 riding modes — no hardware required.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section dark" id="specs">
+    <div class="section-inner">
+      <div class="section-badge" data-reveal>Technical</div>
+      <h2 class="section-title" data-reveal>Built for <span class="accent">Engineers</span></h2>
+      <p class="section-sub" data-reveal>Professional-grade data at your fingertips.</p>
+
+      <div class="specs-grid">
+        <div class="spec-group" data-reveal>
+          <div class="spec-group-title">Engine Core</div>
+          <div class="spec-item"><span class="spec-dot blue"></span><span class="spec-name">RPM</span><span class="spec-val">0 – 9,500</span></div>
+          <div class="spec-item"><span class="spec-dot amber"></span><span class="spec-name">Engine Temperature</span><span class="spec-val">60 – 130°C</span></div>
+          <div class="spec-item"><span class="spec-dot rose"></span><span class="spec-name">Exhaust Gas Temp</span><span class="spec-val">80 – 900°C</span></div>
+          <div class="spec-item"><span class="spec-dot teal"></span><span class="spec-name">Engine Load</span><span class="spec-val">0 – 100%</span></div>
+          <div class="spec-item"><span class="spec-dot green"></span><span class="spec-name">Throttle Position</span><span class="spec-val">0 – 100%</span></div>
+        </div>
+        <div class="spec-group" data-reveal>
+          <div class="spec-group-title">Fuel & Air</div>
+          <div class="spec-item"><span class="spec-dot green"></span><span class="spec-name">Air-Fuel Ratio</span><span class="spec-val">10 – 20 λ</span></div>
+          <div class="spec-item"><span class="spec-dot teal"></span><span class="spec-name">Fuel Pressure</span><span class="spec-val">1 – 5 bar</span></div>
+          <div class="spec-item"><span class="spec-dot amber"></span><span class="spec-name">Fuel Level</span><span class="spec-val">0 – 100%</span></div>
+          <div class="spec-item"><span class="spec-dot indigo"></span><span class="spec-name">MAP Sensor</span><span class="spec-val">15 – 105 kPa</span></div>
+          <div class="spec-item"><span class="spec-dot blue"></span><span class="spec-name">Intake Air Temp</span><span class="spec-val">20 – 55°C</span></div>
+        </div>
+        <div class="spec-group" data-reveal>
+          <div class="spec-group-title">Mechanical</div>
+          <div class="spec-item"><span class="spec-dot teal"></span><span class="spec-name">Oil Pressure</span><span class="spec-val">0 – 7 bar</span></div>
+          <div class="spec-item"><span class="spec-dot blue"></span><span class="spec-name">Battery Voltage</span><span class="spec-val">10 – 15 V</span></div>
+          <div class="spec-item"><span class="spec-dot amber"></span><span class="spec-name">Vibration</span><span class="spec-val">0 – 10 g</span></div>
+          <div class="spec-item"><span class="spec-dot rose"></span><span class="spec-name">Coolant Temp</span><span class="spec-val">55 – 125°C</span></div>
+          <div class="spec-item"><span class="spec-dot green"></span><span class="spec-name">Current Gear</span><span class="spec-val">1 – 6</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="how">
+    <div class="section-inner">
+      <div class="section-badge" data-reveal>Setup</div>
+      <h2 class="section-title" data-reveal>Three Steps. <span class="accent">That's It.</span></h2>
+      <p class="section-sub" data-reveal>From zero to live engine data in under 60 seconds. Or skip straight to simulation — no setup needed.</p>
+
+      <div class="steps">
+        <div class="step" data-reveal>
+          <div class="step-num">01</div>
+          <div class="step-content">
+            <h3>Connect</h3>
+            <p>Plug an ELM327 OBD2 adapter into your vehicle's diagnostic port. USB connection supported.</p>
+          </div>
+          <div class="step-visual">
+            <div class="step-icon-wrap">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" data-reveal>
+          <div class="step-num">02</div>
+          <div class="step-content">
+            <h3>Run Bridge</h3>
+            <p>Double-click ECU_OBD2_Bridge.exe (Windows). Runs silently in the background — no install wizard, no bloat.</p>
+          </div>
+          <div class="step-visual">
+            <div class="step-icon-wrap">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="step" data-reveal>
+          <div class="step-num">03</div>
+          <div class="step-content">
+            <h3>Monitor</h3>
+            <p>Open the dashboard. Live data flows in automatically. Every sensor, every chart, every alert — in real-time.</p>
+          </div>
+          <div class="step-visual">
+            <div class="step-icon-wrap">
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cta-section" data-reveal>
+        <div class="cta-card">
+          <div class="cta-glow"></div>
+          <h2>Ready to see your engine like never before?</h2>
+          <p>Simulation works instantly in your browser. OBD2 mode available for Windows.</p>
+          <div class="cta-actions">
+            <a href="https://www.google.com/search?q=ELM327+USB+to+OBD2+cable&tbm=shop" target="_blank" class="btn-ghost large">
+              Shop OBD2 Cables
+            </a>
+            <a href="dashboard.html" class="btn-primary large">
+              <span class="btn-glow"></span>
+              Launch Dashboard
+            </a>
+            <a href="https://github.com/SidsVictus/ECU-Pulse" target="_blank" class="btn-ghost large">
+              View Source on GitHub
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <svg class="gear-icon small" viewBox="0 0 421.651 421.651" fill="url(#grad)"><path d="M412.326,179.386h-25.838c-4.847-25.694-15.26-50.06-30.467-71.292l17.936-17.937c1.745-1.749,2.726-4.107,2.726-6.588c0-2.47-0.98-4.842-2.726-6.591l-31.3-31.294c-3.64-3.637-9.538-3.637-13.18,0l-18.466,18.465c-21.044-14.391-44.94-24.17-69.915-28.602V9.318c0-5.148-4.175-9.318-9.316-9.318h-44.265c-5.144,0-9.315,4.17-9.315,9.318v26.229c-25.183,4.468-49.248,14.364-70.415,28.925L89.81,46.513c-3.637-3.642-9.535-3.642-13.18,0L45.337,77.812c-1.749,1.751-2.729,4.115-2.729,6.591s0.98,4.84,2.729,6.589l17.6,17.601c-15.022,21.13-25.322,45.319-30.129,70.793H9.319c-5.143,0-9.319,4.161-9.319,9.316v44.258c0,5.154,4.176,9.319,9.319,9.319h22.709c4.276,25.663,14.185,50.232,28.988,71.868l-16.508,16.504c-3.637,3.639-3.637,9.537,0,13.177l31.3,31.311c1.748,1.747,4.12,2.725,6.59,2.725s4.84-0.985,6.588-2.725l15.987-15.977c21.814,15.615,46.851,26.176,73.231,30.839v22.33c0,5.149,4.172,9.319,9.317,9.319h44.263c5.143,0,9.312-4.17,9.312-9.319v-22.33c26.169-4.63,51.032-15.065,72.739-30.507l16.477,16.468c3.498,3.494,9.686,3.494,13.177,0l31.299-31.302c3.64-3.646,3.64-9.533,0-13.177l-16.843-16.854c14.993-21.768,25.019-46.49,29.327-72.361h25.06c5.146,0,9.319-4.158,9.319-9.312v-44.258C421.645,183.547,417.471,179.386,412.326,179.386z M210.82,309.063c-54.252,0-98.23-43.979-98.23-98.233c0-54.25,43.979-98.232,98.23-98.232c54.255,0,98.229,43.976,98.229,98.232C309.049,265.085,265.075,309.063,210.82,309.063z M248.089,210.83c0,20.586-16.688,37.271-37.27,37.271c-20.581,0-37.271-16.686-37.271-37.271c0-20.585,16.691-37.271,37.271-37.271C231.402,173.56,248.089,190.245,248.089,210.83z"/></svg>
+        <span>ECU Pulse</span>
+      </div>
+      <div class="footer-links">
+        <a href="dashboard.html">Dashboard</a>
+        <a href="https://github.com/SidsVictus/ECU-Pulse" target="_blank">GitHub</a>
+        <a href="ECU Pulse.pdf" target="_blank">Docs</a>
+      </div>
+      <div class="footer-copy">MIT License — Free to use, modify, and distribute.</div>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
 </html>

@@ -329,15 +329,16 @@ def print_dashboard(snap, sim, session_start, history):
 # CSV Writer
 # ─────────────────────────────────────────────────────────────────────────────
 CSV_HEADERS = [
-    "timestamp_ms", "mode", "rpm", "speed_kmh", "gear",
-    "engine_temp_c", "exhaust_temp_c", "coolant_temp_c", "intake_air_temp_c",
-    "engine_load_pct", "throttle_pct", "oil_pressure_bar", "fuel_pressure_bar",
-    "battery_voltage_v", "afr", "map_sensor_kpa", "vibration_g", "fuel_level_pct",
+    "timestamp", "mode", "rpm", "speed", "gear",
+    "engine_temp", "exhaust_gas_temp", "coolant_temp", "intake_air_temp",
+    "engine_load", "throttle", "oil_pressure", "fuel_pressure",
+    "battery_voltage", "air_fuel_ratio", "manifold_pressure", "vibration", "fuel_level",
 ]
 
 def snap_to_row(s):
+    ts_str = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(s["timestamp"] / 1000))
     return [
-        s["timestamp"], s["mode"], s["rpm"], s["speed"], s["gear"],
+        ts_str, s["mode"], s["rpm"], s["speed"], s["gear"],
         s["engine_temp"], s["exhaust_temp"], s["coolant_temp"], s["intake_air_temp"],
         s["engine_load"], s["throttle"], s["oil_pressure"], s["fuel_pressure"],
         s["battery_voltage"], s["afr"], s["map_sensor"], s["vibration"], s["fuel_level"],

@@ -1,6 +1,6 @@
 # ⚙ ECU Dashboard — IC Engine Real-Time Monitor
 
-A professional, dark-themed dashboard for monitoring IC engine data in real time
+A dashboard for monitoring IC engine data in real time
 via OBD2 diagnostic adapter. Built with **Python (Flask)** backend and **React** frontend.
 
 ---
@@ -9,7 +9,7 @@ via OBD2 diagnostic adapter. Built with **Python (Flask)** backend and **React**
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  YOUR LAPTOP (connected to OBD2 adapter)                    │
+│  YOUR SYSTEM (connected to OBD2 adapter)                    │
 │                                                             │
 │  obd2_bridge.py  ←── reads OBD2 USB adapter (COM port)      │
 │       │                                                     │

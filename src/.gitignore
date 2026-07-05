@@ -1,7 +1,0 @@
-node_modules/
-dist/
-.env
-build/
-__pycache__/
-*.pyc
-*.spec
