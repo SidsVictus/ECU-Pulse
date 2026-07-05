@@ -385,81 +385,134 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 @keyframes glow-pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
 /* ═══ RESPONSIVE ═══ */
-@media (max-width: 1200px) {
-  .stat-row { grid-template-columns: repeat(3, 1fr); }
-  .row-2 { grid-template-columns: 1fr; }
+
+/* Tablet — compact two-row stat grid, charts stack */
+@media (max-width: 1024px) {
+  .stat-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .row-2 { grid-template-columns: 1fr; gap: 10px; }
   .tacho-card { display: none; }
-  .side-stack { flex-direction: row; }
-  .health-card, .pie-card { flex: 1; }
-}
-@media (max-width: 800px) {
-  .stat-row { grid-template-columns: repeat(2, 1fr); }
-  .row-3 { grid-template-columns: 1fr; }
-  .side-stack { flex-direction: column; }
-  .strip-title { display: none; }
-  .side { width: 260px; padding: 14px 16px; }
-}
-@media (max-width: 600px) {
-  .stat-row { grid-template-columns: 1fr 1fr; gap: 8px; }
-  .main { padding: 10px 10px 32px; gap: 10px; }
-  .sc-val { font-size: 18px; }
-  .sc-label { font-size: 8px; letter-spacing: 0.5px; }
-  .sc-sub { font-size: 9px; }
-  .stat-card { padding: 12px 10px; border-radius: 10px; }
-  .row-2 { gap: 10px; }
+  .side-stack { flex-direction: row; gap: 10px; }
+  .health-card, .pie-card { flex: 1; min-width: 0; }
   .row-3 { gap: 10px; }
-  .chart-card { border-radius: 12px; }
-  .cc-head { padding: 10px 12px 0; }
-  .cc-head b { font-size: 10px; }
-  .cc-body { padding: 8px 10px; min-height: 120px; }
-  .cc-foot { padding: 6px 12px; gap: 10px; }
-  .cc-foot span { font-size: 8px; }
-  .side { width: 100%; padding: 16px; }
-  .strip { padding: 0 12px; gap: 8px; height: 50px; }
+}
+
+/* Mobile landscape / small tablet — two-col stat grid */
+@media (max-width: 768px) {
+  .stat-row { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+  .row-3 { grid-template-columns: 1fr 1fr; }
+  .side-stack { flex-direction: row; }
+  .strip-title { display: none; }
+  .side { width: 280px; padding: 14px 16px; }
+}
+
+/* Mobile portrait — the main mobile experience */
+@media (max-width: 600px) {
+  /* Header */
+  .strip { height: 48px; padding: 0 10px; gap: 6px; }
+  .strip-logo { width: 30px; height: 30px; border-radius: 7px; }
+  .strip-logo svg { width: 18px; height: 18px; }
   .strip-right { gap: 4px; }
-  .strip-btn { font-size: 0; padding: 0 10px; }
+  .strip-btn { font-size: 0; padding: 0 8px; height: 30px; }
   .csv-btn { display: none; }
-  .pill { padding: 0 8px; font-size: 9px; height: 30px; }
-  .sel { padding: 0 6px; font-size: 10px; height: 30px; }
-  .main { padding-top: 8px; }
-  .alerts { gap: 4px; }
-  .al { font-size: 9px; padding: 4px 8px; border-radius: 4px; }
-  .health-card { padding: 12px; }
+  .pill { padding: 0 6px; font-size: 8px; height: 28px; border-radius: 5px; }
+  .sel { padding: 0 6px; font-size: 9px; height: 28px; border-radius: 5px; }
+  .theme-btn { width: 30px; height: 30px; padding: 0; display: flex; align-items: center; justify-content: center; }
+  .strip-btn[onclick*="toggleSide"] { width: 30px; height: 30px; padding: 0; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+
+  /* Sidebar full-screen overlay */
+  .side { width: 100%; top: 0; bottom: 0; right: 0; padding: 16px; padding-top: 60px; }
+  .side-overlay { top: 0; }
+
+  /* Main content */
+  .main { padding: 8px 10px 80px; gap: 8px; }
+
+  /* Stat cards — compact two-col grid */
+  .stat-row { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+  .stat-card { padding: 10px; border-radius: 10px; }
+  .sc-label { font-size: 8px; letter-spacing: 0.5px; }
+  .sc-val { font-size: 22px; font-weight: 800; margin-bottom: 2px; }
+  .sc-sub { font-size: 9px; margin-bottom: 6px; }
+  .sc-bar { height: 3px; }
+
+  /* Charts — full width, compact */
+  .row-2 { gap: 8px; }
+  .row-3 { grid-template-columns: 1fr; gap: 8px; }
+  .chart-card { border-radius: 12px; }
+  .cc-head { padding: 8px 10px 0; gap: 6px; }
+  .cc-head b { font-size: 10px; }
+  .cc-badge { font-size: 8px; padding: 1px 6px; }
+  .cc-body { padding: 6px 8px; min-height: 130px; }
+  .cc-foot { padding: 5px 10px; gap: 8px; }
+  .cc-foot span { font-size: 8px; }
+
+  /* Side stack — health + pie vertical */
+  .side-stack { flex-direction: column; gap: 8px; }
+
+  /* Health card — compact */
+  .health-card { padding: 10px; }
+  .hc-head { font-size: 8px; margin-bottom: 8px; }
   .hc-ring { width: 80px; height: 80px; }
   .hc-val { font-size: 22px; }
-  .hc-bars { gap: 6px; }
-  .hcb span { font-size: 8px; width: 50px; }
-  .hcb b { font-size: 8px; }
-  .pie-card { padding: 12px; }
+  .hc-grade { font-size: 10px; margin-top: 4px; margin-bottom: 6px; }
+  .hc-bars { gap: 5px; }
+  .hcb span { font-size: 8px; width: 48px; }
+  .hcb-track { height: 3px; }
+  .hcb b { font-size: 8px; width: 20px; }
+
+  /* Pie card */
+  .pie-card { padding: 10px; }
+  .pc-head { font-size: 8px; margin-bottom: 6px; }
   .pc-chart { height: 100px; }
-  .modal { padding: 16px; }
-  .modal-card { max-width: 360px; }
-  .modal-glyph { width: 60px; height: 60px; border-radius: 16px; }
-  .modal-glyph svg { width: 40px; height: 40px; }
-  .modal-h { font-size: 24px; }
-  .modal-p { font-size: 12px; margin-bottom: 20px; }
-  .ms { padding: 10px 0; gap: 10px; }
-  .ms-n { width: 22px; height: 22px; border-radius: 6px; font-size: 9px; }
-  .ms-t b { font-size: 12px; }
-  .ms-t span { font-size: 10px; }
-  .mbtn { padding: 12px; font-size: 12px; border-radius: 8px; }
-  .dl-card { padding: 12px; flex-wrap: wrap; }
-  .dl-card small { font-size: 9px; }
-  .dl-btn { padding: 6px 12px; font-size: 10px; }
-  .side-sh { font-size: 9px; }
-  .side-btn { padding: 8px; font-size: 11px; }
-  .side-ctrl-btn { font-size: 10px; padding: 6px; }
-  .spd-btn { font-size: 10px; padding: 5px 0; }
-  .mode-btn { font-size: 10px; padding: 6px 8px; }
+
+  /* Alerts */
+  .alerts { gap: 4px; }
+  .al { font-size: 8px; padding: 3px 6px; border-radius: 4px; gap: 4px; }
+  .al-dot { width: 4px; height: 4px; }
+
+  /* Modal — compact mobile */
+  .modal { padding: 12px; }
+  .modal-card { max-width: 340px; }
+  .modal-glyph { width: 56px; height: 56px; border-radius: 14px; margin-bottom: 14px; }
+  .modal-glyph svg { width: 36px; height: 36px; }
+  .modal-h { font-size: 22px; margin-bottom: 4px; }
+  .modal-p { font-size: 11px; margin-bottom: 16px; }
+  .ms { padding: 8px 0; gap: 8px; }
+  .ms-n { width: 20px; height: 20px; border-radius: 5px; font-size: 9px; }
+  .ms-t b { font-size: 11px; }
+  .ms-t span { font-size: 9px; }
+  .mbtn { padding: 10px; font-size: 12px; border-radius: 8px; }
+  .dl-card { padding: 10px; gap: 8px; }
+  .dl-card small { font-size: 8px; }
+  .dl-btn { padding: 5px 10px; font-size: 9px; }
+
+  /* Sidebar inner elements */
+  .side-h { font-size: 9px; margin-bottom: 10px; }
+  .side-sh { font-size: 9px; margin-bottom: 6px; }
+  .side-btn { padding: 10px; font-size: 11px; border-radius: 8px; }
+  .side-ctrl-btn { font-size: 10px; padding: 8px; }
+  .spd-btn { font-size: 10px; padding: 7px 0; }
+  .mode-btn { font-size: 10px; padding: 7px 8px; }
+  .sl { padding: 7px 8px; }
   .sl span { font-size: 11px; }
   .sl b { font-size: 12px; }
   .status-label { font-size: 11px; }
   .status-sub { font-size: 9px; }
+  .side-status { padding: 10px; gap: 8px; }
 }
+
+/* Small phones */
 @media (max-width: 380px) {
-  .stat-row { grid-template-columns: 1fr; }
-  .sc-val { font-size: 22px; }
-  .strip-logo { width: 30px; height: 30px; }
-  .strip-logo svg { width: 18px; height: 18px; }
-  .side-stack { gap: 8px; }
+  .stat-row { grid-template-columns: 1fr 1fr; gap: 5px; }
+  .stat-card { padding: 8px; }
+  .sc-val { font-size: 20px; }
+  .sc-sub { font-size: 8px; }
+  .strip-logo { width: 26px; height: 26px; border-radius: 6px; }
+  .strip-logo svg { width: 16px; height: 16px; }
+  .main { padding: 6px 6px 70px; gap: 6px; }
+  .row-3 { gap: 6px; }
+  .chart-card { border-radius: 10px; }
+  .cc-body { min-height: 110px; }
+  .side-stack { gap: 6px; }
+  .hc-ring { width: 70px; height: 70px; }
+  .hc-val { font-size: 20px; }
 }
