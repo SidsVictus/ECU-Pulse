@@ -54,7 +54,7 @@ ECU Pulse connects to any ELM327 OBD2 adapter and displays live engine data in a
 | | Details |
 |---|---|
 | **Adapter** | Any ELM327-based OBD2 adapter (USB recommended) |
-| **Connection** | USB, Bluetooth ELM327 v1.5 |
+| **Connection** | USB |
 | **Vehicles** | Fuel-injected bikes and cars, mostly post-2010 |
 | **OS** | Windows (for the bridge), any OS for the dashboard |
 
