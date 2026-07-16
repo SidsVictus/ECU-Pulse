@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="https://ecupulse.surge.sh">Live Demo</a>
+  <a href="https://ecupulse.surge.sh">Dashboard</a>
   &nbsp;&bull;&nbsp;
   <a href="https://github.com/SidsVictus/ECU-Pulse/blob/main/ECU-Pulse.pdf">Documentation</a>
   &nbsp;&bull;&nbsp;
@@ -22,7 +22,7 @@
 
 ## About
 
-ECU Pulse connects to any ELM327 OBD2 adapter and displays live engine data in a browser-based dashboard. It reads RPM, speed, temperatures, air-fuel ratio, and other sensor data in real time. If no adapter is connected, it runs a physics-based simulation that mimics real engine behavior.
+ECU Pulse connects to any ELM327 OBD2 adapter and displays live engine data in a browser-based dashboard. It reads sensor data in real time. If no adapter is connected, it runs a physics-based simulation that mimics real engine behavior.
 
 ## Features
 
@@ -30,9 +30,7 @@ ECU Pulse connects to any ELM327 OBD2 adapter and displays live engine data in a
 - **Interactive Charts** — RPM timeline, temperature profile, load & throttle, riding mode breakdown
 - **Engine Health Score** — Aggregated from engine, thermal, fueling, electrical, and mechanical subsystems
 - **CSV Import & Export** — Record sessions and replay them later
-- **Simulation Mode** — Physics-based engine sim with idle, city, highway, aggressive, and decel modes
 - **Adjustable Speed** — 0.25x to 2x playback control
-- **Dark & Light Theme** — Toggle between themes
 - **Mobile Responsive** — Works on phones, tablets, and desktops
 
 ## Getting Started
@@ -47,17 +45,21 @@ ECU Pulse connects to any ELM327 OBD2 adapter and displays live engine data in a
 ### Simulation Mode
 
 1. Open the [dashboard](https://ecupulse.surge.sh/dashboard)
-2. Select **Simulation** — no hardware required
+2. Select **Simulation**
+3. Feel the engineering visually without any hardware connected
 
 ## Compatibility
 
 | | Details |
 |---|---|
 | **Adapter** | Any ELM327-based OBD2 adapter (USB recommended) |
-| **Connection** | USB |
 | **Vehicles** | Fuel-injected bikes and cars, mostly post-2010 |
 | **OS** | Windows (for the bridge), any OS for the dashboard |
 
+## Note for Explorers
+To see the cool ass backend running, download the [`obd2_bridge.py`], 
+double click the file and voila~
+
 ## License
 
-Distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
+Distributed under the MIT License. 
