@@ -1,4 +1,13 @@
+# Core dependencies
 flask>=2.3.0
 flask-cors>=4.0.0
 obd>=0.7.1
 pyinstaller>=6.0.0
+
+# Security dependencies
+flask-limiter>=3.5.0
+pyserial>=3.5
+
+# Optional: for production deployment
+# gunicorn>=21.0.0
+# werkzeug>=24

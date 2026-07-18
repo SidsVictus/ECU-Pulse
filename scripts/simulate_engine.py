@@ -23,6 +23,7 @@ import random
 import sys
 import time
 from datetime import datetime
+from pathlib import Path
 
 # ─────────────────────────────────────────────────────────────────────────────
 # CLI Arguments
@@ -35,6 +36,44 @@ parser.add_argument("--output",    default="",                help="CSV output f
 parser.add_argument("--no-csv",    action="store_true",       help="Disable CSV saving")
 parser.add_argument("--no-color",  action="store_true",       help="Disable ANSI colours")
 args = parser.parse_args()
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Security: Input Validation
+# ─────────────────────────────────────────────────────────────────────────────
+VALID_MODES = {"idle", "city", "highway", "aggressive", "decel", "auto"}
+
+def validate_mode(mode: str) -> str:
+    """Validate and sanitize mode argument."""
+    return mode if mode in VALID_MODES else "auto"
+
+def validate_interval(interval: float) -> float:
+    """Validate tick interval (0.05s to 60s)."""
+    return max(0.05, min(60.0, interval))
+
+def validate_duration(duration: float) -> float:
+    """Validate session duration (0 to 86400s = 24h)."""
+    return max(0.0, min(86400.0, duration))
+
+def validate_output_path(path: str, default_name: str) -> Path:
+    """Validate and sanitize output path to prevent traversal."""
+    if not path:
+        return Path(default_name).resolve()
+    # Resolve to absolute path and ensure it's in current directory or subdirectory
+    try:
+        resolved = Path(path).resolve()
+        cwd = Path.cwd().resolve()
+        # Allow files in cwd or subdirectories only
+        if not str(resolved).startswith(str(cwd)):
+            print(f"Warning: Output path outside working directory, using default")
+            return Path(default_name).resolve()
+        return resolved
+    except (OSError, ValueError):
+        return Path(default_name).resolve()
+
+# Apply validation
+args.mode = validate_mode(args.mode)
+args.interval = validate_interval(args.interval)
+args.duration = validate_duration(args.duration)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ANSI Colour Codes
@@ -105,6 +144,15 @@ def health_color(score):
     if score >= 85: return GREEN
     if score >= 65: return YELLOW
     return RED
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Secure Terminal Clear (no os.system)
+# ─────────────────────────────────────────────────────────────────────────────
+def clear():
+    """Clear terminal without shell injection vulnerability."""
+    # ANSI escape sequence - works on all modern terminals including Windows 10+
+    sys.stdout.write("\033[2J\033[H")
+    sys.stdout.flush()
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Engine Simulator Class
@@ -237,9 +285,6 @@ class EngineSimulator:
 # ─────────────────────────────────────────────────────────────────────────────
 # Terminal Display
 # ─────────────────────────────────────────────────────────────────────────────
-def clear():
-    os.system("cls" if os.name == "nt" else "clear")
-
 def print_dashboard(snap, sim, session_start, history):
     clear()
     elapsed = int(time.time() - session_start)
@@ -349,9 +394,6 @@ def snap_to_row(s):
 # ─────────────────────────────────────────────────────────────────────────────
 def main():
     forced = args.mode if args.mode != "auto" else "auto"
-    if forced not in list(MODE_TARGETS.keys()) + ["auto"]:
-        print(f"Unknown mode '{forced}'. Using 'auto'.")
-        forced = "auto"
 
     sim           = EngineSimulator(forced_mode=forced)
     session_start = time.time()
@@ -359,14 +401,15 @@ def main():
     csv_file      = None
     csv_writer    = None
 
-    # Setup CSV
+    # Setup CSV with validated path
     if not args.no_csv:
-        fname = args.output if args.output else f"ecu_session_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        default_name = f"ecu_session_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+        output_path = validate_output_path(args.output, default_name)
         try:
-            csv_file   = open(fname, "w", newline="", encoding="utf-8")
+            csv_file   = open(output_path, "w", newline="", encoding="utf-8")
             csv_writer = csv.writer(csv_file)
             csv_writer.writerow(CSV_HEADERS)
-            print(f"\n{GREEN}✓{RESET} CSV logging to: {BOLD}{fname}{RESET}")
+            print(f"\n{GREEN}✓{RESET} CSV logging to: {BOLD}{output_path}{RESET}")
         except IOError as e:
             print(f"\n{YELLOW}⚠ Could not open CSV: {e}{RESET}")
 

@@ -1,5 +1,40 @@
-import sys, os
+import sys
+import os
+import json
+import random
+import threading
+import time
+import re
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Security Configuration
+# ─────────────────────────────────────────────────────────────────────────────
+def get_allowed_origins():
+    """Parse allowed origins from environment variable."""
+    origins = os.environ.get("OBD2_ALLOWED_ORIGINS", "http://localhost:5000,http://127.0.0.1:5000")
+    return [o.strip() for o in origins.split(",") if o.strip()]
+
+def get_rate_limit():
+    """Parse rate limit from environment variable."""
+    return os.environ.get("OBD2_RATE_LIMIT", "100 per minute, 20 per second")
+
+def validate_port_name(port: str) -> bool:
+    """Validate serial port name against safe pattern."""
+    # Windows: COM1-COM256, Linux: /dev/ttyUSB*, /dev/ttyACM*, /dev/ttyS*
+    # macOS: /dev/tty.usbserial*, /dev/tty.usbmodem*
+    windows_pattern = r"^COM\d{1,3}$"
+    unix_pattern = r"^/dev/(tty(USB|ACM|S|AMA|OBD|serial)\d+|cu\.(usbserial|usbmodem|Bluetooth-Incoming-Port)[\w\-]*)$"
+    return bool(re.match(windows_pattern, port, re.IGNORECASE) or re.match(unix_pattern, port))
+
+# Strict serial communication defaults
+DEFAULT_BAUD = 38400
+DEFAULT_TIMEOUT = 2
+MAX_RESPONSE_SIZE = 4096
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Null Stream Handling (for frozen executables)
+# ─────────────────────────────────────────────────────────────────────────────
 class _NullStream:
     def write(self, *args, **kwargs): pass
     def flush(self, *args, **kwargs): pass
@@ -8,28 +43,28 @@ class _NullStream:
 if sys.stdout is None: sys.stdout = _NullStream()
 if sys.stderr is None: sys.stderr = _NullStream()
 
-import json, random, threading, time
-from http.server import BaseHTTPRequestHandler, HTTPServer
-
 if sys.platform == "win32":
     try:
         import ctypes
         ctypes.windll.kernel32.SetConsoleMode(ctypes.windll.kernel32.GetStdHandle(-11), 7)
-    except: pass
+    except Exception:
+        pass
     try:
         sys.stdout.reconfigure(encoding='utf-8', errors='replace')
         sys.stderr.reconfigure(encoding='utf-8', errors='replace')
-    except: pass
+    except Exception:
+        pass
 
-PORT = 8765
-INTERVAL = 1.0
+PORT = int(os.environ.get("OBD2_SERVER_PORT", "8765"))
+INTERVAL = float(os.environ.get("OBD2_UPDATE_INTERVAL", "1.0"))
 
-# ── Colors ─────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Colors
+# ─────────────────────────────────────────────────────────────────────────────
 class C:
     RST = "\033[0m"
     B   = "\033[1m"
     DIM = "\033[2m"
-    U   = "\033[4m"
     BLK = "\033[90m"
     RED = "\033[91m"
     GRN = "\033[92m"
@@ -50,9 +85,11 @@ USE_COLOR = hasattr(sys.stdout, "isatty") and sys.stdout.isatty()
 def c(clr, txt): return f"{clr}{txt}{C.RST}" if USE_COLOR else str(txt)
 def p(msg=""):
     try: print(msg, flush=True)
-    except: pass
+    except Exception: pass
 
-# ── Gauge Bar ──────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Gauge Bar
+# ─────────────────────────────────────────────────────────────────────────────
 def gauge(value, maximum, width=20):
     ratio = min(1.0, max(0.0, value / maximum))
     filled = int(width * ratio)
@@ -64,10 +101,12 @@ def gauge(value, maximum, width=20):
     else:
         return c(C.RED + C.B, "#" * filled) + c(C.BLK, "-" * empty)
 
-# ── Banner ─────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Banner & Config
+# ─────────────────────────────────────────────────────────────────────────────
 def print_banner():
     p()
-    p(c(C.CYN + C.B, "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"))
+    p(c(C.CYN + C.B, "┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓"))
     p(c(C.CYN + C.B, "┃                                                                      ┃"))
     p(c(C.CYN + C.B, "┃                      _____ _            ____        _                ┃"))
     p(c(C.CYN + C.B, "┃                     |_   _| |__   ___  |  _ \\ _   _| |___  ___       ┃"))
@@ -75,29 +114,32 @@ def print_banner():
     p(c(C.CYN + C.B, "┃                       | | | | | |  __/ |  __/| |_| | \\__ \\  __/      ┃"))
     p(c(C.CYN + C.B, "┃                       |_| |_| |_|\\___| |_|    \\__,_|_|___/\\___|      ┃"))
     p(c(C.CYN + C.B, "┃                                                                      ┃"))
-    p(c(C.CYN + C.B, "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"))
+    p(c(C.CYN + C.B, "┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛"))
     p()
-    p(c(C.DIM, "              OBD2 Data Server v1.0"))
-    p(c(C.BLK, "    " + "=" * 44))
+    p(c(C.DIM, "              OBD2 Data Server v1.0 — Hardened Edition"))
+    p(c(C.BLK, "    " + "=" * 60))
     p()
 
-# ── Config ─────────────────────────────────────────────────────
 def print_config():
     p(c(C.CYN + C.B, "    [SYSTEM CONFIGURATION]"))
-    p(c(C.CYN, "    +") + c(C.BLK, "-" * 38) + c(C.CYN, "+"))
-    p(c(C.CYN, "    |") + c(C.WHT, "  Update Interval:") + c(C.GRN + C.B, f"  {INTERVAL}s") + c(C.CYN, "              |"))
-    p(c(C.CYN, "    |") + c(C.WHT, "  Server Port:") + c(C.GRN + C.B, f"      {PORT}") + c(C.CYN, "                |"))
-    p(c(C.CYN, "    |") + c(C.WHT, "  Protocol:") + c(C.GRN + C.B, "         HTTP/JSON") + c(C.CYN, "        |"))
-    p(c(C.CYN, "    +") + c(C.BLK, "-" * 38) + c(C.CYN, "+"))
+    p(c(C.CYN, "    +") + c(C.BLK, "-" * 56) + c(C.CYN, "+"))
+    p(c(C.CYN, "    |") + c(C.WHT, "  Update Interval:") + c(C.GRN + C.B, f"  {INTERVAL}s") + c(C.CYN, "                            |"))
+    p(c(C.CYN, "    |") + c(C.WHT, "  Server Port:") + c(C.GRN + C.B, f"      {PORT}") + c(C.CYN, "                              |"))
+    p(c(C.CYN, "    |") + c(C.WHT, "  Protocol:") + c(C.GRN + C.B, "         HTTP/JSON") + c(C.CYN, "                       |"))
+    p(c(C.CYN, "    |") + c(C.WHT, "  Rate Limit:") + c(C.GRN + C.B, f"      {get_rate_limit()}") + c(C.CYN, "          |"))
+    p(c(C.CYN, "    |") + c(C.WHT, "  CORS Origins:") + c(C.GRN + C.B, f"      {len(get_allowed_origins())} configured") + c(C.CYN, "           |"))
+    p(c(C.CYN, "    +") + c(C.BLK, "-" * 56) + c(C.CYN, "+"))
     p()
 
-# ── Scan ───────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Scan
+# ─────────────────────────────────────────────────────────────────────────────
 def print_scanning():
     p(c(C.YEL + C.B, "    @ INITIATING OBD2 ADAPTER SCAN"))
     p(c(C.DIM, "    |  Protocol: ELM327 via Serial"))
     p(c(C.DIM, "    |  Baud Rate: 38400"))
     p(c(C.DIM, "    |  Verification: Required"))
-    p(c(C.BLK, "    " + "-" * 44))
+    p(c(C.BLK, "    " + "-" * 60))
     p()
 
 def print_port(port, desc):
@@ -117,7 +159,7 @@ def print_no_adapter():
     p(c(C.RED + C.B, "    @ SCAN COMPLETE: NO ADAPTER FOUND"))
     p(c(C.DIM, "    |  Status: SIMULATION MODE ACTIVE"))
     p(c(C.DIM, "    |  Action: Connect ELM327 and restart"))
-    p(c(C.BLK, "    " + "-" * 44))
+    p(c(C.BLK, "    " + "-" * 60))
     p()
 
 def print_connected(port):
@@ -125,23 +167,27 @@ def print_connected(port):
     p(c(C.GRN + C.B, "    @ ADAPTER CONNECTED: ") + c(C.WHT + C.B, port))
     p(c(C.GRN, "    |  Mode: LIVE OBD2 DATA STREAM"))
     p(c(C.GRN, "    |  Status: ACTIVE"))
-    p(c(C.BLK, "    " + "-" * 44))
+    p(c(C.BLK, "    " + "-" * 60))
     p()
 
-# ── Server ─────────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Server
+# ─────────────────────────────────────────────────────────────────────────────
 def print_server():
     p(c(C.CYN + C.B, "    @ HTTP SERVER ONLINE"))
-    p(c(C.CYN, "    +") + c(C.BLK, "-" * 38) + c(C.CYN, "+"))
-    p(c(C.CYN, "    |") + c(C.WHT, "  Data Endpoint:") + c(C.GRN, f"  /data") + c(C.CYN, "             |"))
-    p(c(C.CYN, "    |") + c(C.WHT, "  Status Endpoint:") + c(C.GRN, f"/status") + c(C.CYN, "           |"))
-    p(c(C.CYN, "    |") + c(C.WHT, "  Port:") + c(C.GRN + C.B, f"          {PORT}") + c(C.CYN, "                |"))
-    p(c(C.CYN, "    +") + c(C.BLK, "-" * 38) + c(C.CYN, "+"))
+    p(c(C.CYN, "    +") + c(C.BLK, "-" * 56) + c(C.CYN, "+"))
+    p(c(C.CYN, "    |") + c(C.WHT, "  Data Endpoint:") + c(C.GRN, f"  /data") + c(C.CYN, "                               |"))
+    p(c(C.CYN, "    |") + c(C.WHT, "  Status Endpoint:") + c(C.GRN, f"/status") + c(C.CYN, "                              |"))
+    p(c(C.CYN, "    |") + c(C.WHT, "  Port:") + c(C.GRN + C.B, f"          {PORT}") + c(C.CYN, "                                |"))
+    p(c(C.CYN, "    +") + c(C.BLK, "-" * 56) + c(C.CYN, "+"))
     p()
     p(c(C.WHT + C.B, "    >> Open dashboard in browser"))
     p(c(C.DIM, "    >> Press Ctrl+C to stop"))
     p()
 
-# ── Data Line ──────────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Data Line
+# ─────────────────────────────────────────────────────────────────────────────
 def print_data(snap):
     mode = snap["mode"]
     rpm = snap["rpm"]
@@ -152,31 +198,25 @@ def print_data(snap):
     source = snap["source"]
     health = snap.get("health", {}).get("overall", 100)
 
-    # Source
     src = c(C.GRN + C.B, "LIVE") if source == "live_obd2" else c(C.BLK + C.B, " SIM")
 
-    # Mode colors
     mc = {"idle": C.DIM, "city": C.BLU, "highway": C.GRN, "aggressive": C.RED, "decel": C.YEL}
     mode_c = mc.get(mode, C.WHT)
 
-    # RPM color
     if rpm < 2000: rc = C.GRN
     elif rpm < 4000: rc = C.YEL
     elif rpm < 6000: rc = C.ORG
     else: rc = C.RED
 
-    # Temp color
     if temp < 80: tc = C.CYN
     elif temp < 100: tc = C.GRN
     elif temp < 110: tc = C.YEL
     else: tc = C.RED
 
-    # Health
     if health >= 80: hc = C.GRN
     elif health >= 60: hc = C.YEL
     else: hc = C.RED
 
-    # Build display
     ts = c(C.BLK + C.B, time.strftime("%H:%M:%S"))
     md = c(mode_c + C.B, f"{mode:>9}")
     rp = c(rc + C.B, f"{rpm:>5}")
@@ -188,7 +228,9 @@ def print_data(snap):
 
     p(f"  {ts} [{src}] {md}  {rp} rpm  {tp} C  {sp} km/h  {gr}  {ld}  {hp}")
 
-# ── Engine Simulator ───────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────────────────────
+# Engine Simulator (unchanged logic)
+# ─────────────────────────────────────────────────────────────────────────────
 class EngineSimulator:
     def __init__(self):
         self.t = 0; self.rpm = 800; self.speed = 0; self.eng_temp = 25
@@ -237,12 +279,15 @@ class EngineSimulator:
                 "intake_temp":round(self.iat,1),"fuel_pressure":round(self.fuel_press,2),"health":h,"source":"simulation"}
 
 def verify_elm327(port_name):
+    if not validate_port_name(port_name):
+        p(c(C.RED, f"    |  Invalid port name: {port_name}"))
+        return False
     try:
         import serial
         print_verifying(port_name)
-        with serial.Serial(port_name, 38400, timeout=2) as s:
+        with serial.Serial(port_name, DEFAULT_BAUD, timeout=DEFAULT_TIMEOUT) as s:
             s.write(b"ATI\r"); time.sleep(0.5)
-            resp = s.read(64).decode(errors="ignore").upper()
+            resp = s.read(MAX_RESPONSE_SIZE).decode(errors="ignore").upper()
             if "ELM327" in resp or "ELM 327" in resp:
                 print_verified(port_name); return True
             else:
@@ -273,42 +318,128 @@ data_lock = threading.Lock()
 obd_status = {"connected": False, "port": None, "mode": "scanning"}
 scan_complete = threading.Event()
 
+# Rate limiting for HTTP server
+_request_counts = {}
+_request_lock = threading.Lock()
+_RATE_WINDOW = 60  # seconds
+
+def check_rate_limit(client_ip: str, limit: int = 100) -> bool:
+    """Simple sliding window rate limiter."""
+    now = time.time()
+    with _request_lock:
+        if client_ip not in _request_counts:
+            _request_counts[client_ip] = []
+        # Clean old entries
+        _request_counts[client_ip] = [t for t in _request_counts[client_ip] if now - t < _RATE_WINDOW]
+        if len(_request_counts[client_ip]) >= limit:
+            return False
+        _request_counts[client_ip].append(now)
+        return True
+
+def get_client_ip(handler) -> str:
+    """Extract client IP from request."""
+    return handler.client_address[0] if handler.client_address else "unknown"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HTTP Request Handler (Hardened)
+# ─────────────────────────────────────────────────────────────────────────────
 class Handler(BaseHTTPRequestHandler):
     def log_message(self, *args): pass
+
+    def _send_cors_headers(self):
+        """Send CORS headers restricted to allowed origins."""
+        origin = self.headers.get("Origin", "")
+        allowed = get_allowed_origins()
+        if origin in allowed or "*" in allowed:
+            self.send_header("Access-Control-Allow-Origin", origin)
+        self.send_header("Access-Control-Allow-Methods", "GET, OPTIONS")
+        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Max-Age", "3600")
+
+    def _send_security_headers(self):
+        """Send security headers."""
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("X-Frame-Options", "DENY")
+        self.send_header("X-XSS-Protection", "1; mode=block")
+        self.send_header("Referrer-Policy", "strict-origin-when-cross-origin")
+        self.send_header("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")
+        # Remove server header
+        self.send_header("Server", "")
+
+    def _rate_limited_response(self):
+        self.send_response(429)
+        self.send_header("Content-Type", "application/json")
+        self._send_cors_headers()
+        self._send_security_headers()
+        self.end_headers()
+        self.wfile.write(json.dumps({"error": "rate_limited", "message": "Too many requests"}).encode())
+
     def do_GET(self):
+        # Rate limiting
+        client_ip = get_client_ip(self)
+        if not check_rate_limit(client_ip):
+            self._rate_limited_response()
+            return
+
         if self.path in ("/data", "/data/"):
             if not scan_complete.is_set():
                 self.send_response(503)
                 self.send_header("Content-Type", "application/json")
-                self.send_header("Access-Control-Allow-Origin", "*")
+                self._send_cors_headers()
+                self._send_security_headers()
                 self.end_headers()
                 self.wfile.write(json.dumps({"error": "scanning", "message": "Port scan in progress. Please wait."}).encode())
                 return
-            with data_lock: payload = json.dumps(latest_data, indent=2)
-            self.send_response(200); self.send_header("Content-Type","application/json")
-            self.send_header("Access-Control-Allow-Origin","*"); self.end_headers()
+            with data_lock:
+                payload = json.dumps(latest_data, indent=2)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self._send_cors_headers()
+            self._send_security_headers()
+            self.end_headers()
             self.wfile.write(payload.encode())
         elif self.path in ("/status", "/status/"):
-            with data_lock: payload = json.dumps(obd_status, indent=2)
-            self.send_response(200); self.send_header("Content-Type","application/json")
-            self.send_header("Access-Control-Allow-Origin","*"); self.end_headers()
+            with data_lock:
+                payload = json.dumps(obd_status, indent=2)
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self._send_cors_headers()
+            self._send_security_headers()
+            self.end_headers()
             self.wfile.write(payload.encode())
         elif self.path in ("/", ""):
-            self.send_response(200); self.send_header("Content-Type","text/plain"); self.end_headers()
+            self.send_response(200)
+            self.send_header("Content-Type", "text/plain")
+            self._send_cors_headers()
+            self._send_security_headers()
+            self.end_headers()
             self.wfile.write(b"ECU OBD2 Bridge running. GET /data")
         else:
-            self.send_response(404); self.end_headers()
-    def do_OPTIONS(self):
-        self.send_response(200); self.send_header("Access-Control-Allow-Origin","*")
-        self.send_header("Access-Control-Allow-Methods","GET, OPTIONS"); self.end_headers()
+            self.send_response(404)
+            self._send_cors_headers()
+            self._send_security_headers()
+            self.end_headers()
 
+    def do_OPTIONS(self):
+        client_ip = get_client_ip(self)
+        if not check_rate_limit(client_ip, limit=50):
+            self._rate_limited_response()
+            return
+        self.send_response(200)
+        self._send_cors_headers()
+        self._send_security_headers()
+        self.end_headers()
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Data Loop
+# ─────────────────────────────────────────────────────────────────────────────
 def data_loop(real_port):
     scan_complete.wait()
     real_conn = None
     if real_port:
         try:
             import serial
-            real_conn = serial.Serial(real_port, 38400, timeout=1)
+            real_conn = serial.Serial(real_port, DEFAULT_BAUD, timeout=DEFAULT_TIMEOUT)
             obd_status["connected"] = True; obd_status["port"] = real_port; obd_status["mode"] = "live"
         except Exception as e:
             p(c(C.RED, f"    Could not open {real_port}: {e}")); real_conn = None
@@ -317,16 +448,22 @@ def data_loop(real_port):
             sim.update(); snap = sim.snapshot()
             if real_conn and real_conn.is_open:
                 snap["source"] = "live_obd2"; snap["port"] = real_port
-            with data_lock: latest_data.update(snap)
+            with data_lock:
+                latest_data.update(snap)
             print_data(snap)
-        except Exception as e: p(c(C.RED, f"    Error: {e}"))
+        except Exception as e:
+            p(c(C.RED, f"    Error: {e}"))
         time.sleep(INTERVAL)
 
+# ─────────────────────────────────────────────────────────────────────────────
+# Main
+# ─────────────────────────────────────────────────────────────────────────────
 def main():
     print_banner(); print_config(); print_scanning()
     found_port = None
     def scan():
-        nonlocal found_port; found_port = find_obd2()
+        nonlocal found_port
+        found_port = find_obd2()
         if found_port:
             print_connected(found_port); obd_status["connected"] = True
             obd_status["port"] = found_port; obd_status["mode"] = "live"
@@ -335,7 +472,8 @@ def main():
         scan_complete.set()
     threading.Thread(target=scan, daemon=True).start()
     sim.update()
-    with data_lock: latest_data.update(sim.snapshot())
+    with data_lock:
+        latest_data.update(sim.snapshot())
     server = HTTPServer(("0.0.0.0", PORT), Handler); print_server()
     threading.Thread(target=data_loop, args=(found_port,), daemon=True).start()
     try:
