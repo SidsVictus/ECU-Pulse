@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://ecupulse.surge.sh/?feedback=true">
+  <a href="https://ecupulse.surge.sh">
     <img src="font/gear-wheel-readme.svg" alt="ECU Pulse" width="100">
   </a>
 </p>

@@ -35,7 +35,6 @@
         <div class="ms"><div class="ms-n">1</div><div class="ms-t"><b>Ignore warning</b><span>When the purple warning dialog appears, click More info, then Run anyway.</span></div></div>
         <div class="ms"><div class="ms-n">2</div><div class="ms-t"><b>Run Bridge</b><span>Double-click. Runs silently.</span></div></div>
         <div class="ms"><div class="ms-n">3</div><div class="ms-t"><b>Connect cable</b><span>OBD2 → vehicle, USB → laptop.</span></div></div>
-        <div class="ms"><div class="ms-n">4</div><div class="ms-t"><b>Start below</b><span>Dashboard auto-connects.</span></div></div>
       </div>
       <div class="modal-btns">
         <button class="mbtn primary" id="mBtn" onclick="mNext()">Begin →</button>
@@ -157,6 +156,8 @@
 
       <div class="alerts" id="alerts"></div>
 
+      <div class="toast" id="toast"></div>
+
       <div class="stat-row">
         <div class="stat-card sc-cyan">
           <div class="sc-head"><span class="sc-label">BATTERY</span></div>
@@ -271,6 +272,6 @@
     </main>
   </div>
 
-  <script src="scripts/dash-app.js"></script>
+  <script src="dash-app.js"></script>
 </body>
 </html>

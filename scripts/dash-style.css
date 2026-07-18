@@ -97,7 +97,7 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
 .hidden { display: none !important; }
 
 /* ═══ MODAL ═══ */
-.modal { position: fixed; inset: 0; z-index: 999; display: flex; align-items: center; justify-content: center; background: rgba(4,6,12,0.97); backdrop-filter: blur(40px); padding: 24px; }
+.modal { position: fixed; inset: 0; z-index: 999; display: flex; align-items: center; justify-content: center; background: rgba(4,6,12,0.97); backdrop-filter: blur(40px); padding: 24px; overflow-y: auto; }
 .modal-card { width: 100%; max-width: 420px; text-align: center; animation: rise .5s cubic-bezier(.16,1,.3,1); }
 .modal-glyph { width: 72px; height: 72px; margin: 0 auto 20px; border-radius: 20px; background: linear-gradient(135deg, var(--fire), var(--coral)); display: flex; align-items: center; justify-content: center; box-shadow: 0 12px 40px rgba(154,171,110,0.25), 0 0 60px rgba(154,171,110,0.06); }
 .modal-glyph svg { width: 48px; height: 48px; color: #fff; }
@@ -582,3 +582,7 @@ body::before { content: ''; position: fixed; inset: 0; background: radial-gradie
   .tacho-meta { gap: 10px; }
   .tacho-meta span { font-size: 8px; }
 }
+
+/* ═══ TOAST ═══ */
+.toast { position: fixed; top: 72px; left: 50%; transform: translateX(-50%) translateY(-20px); background: linear-gradient(135deg, rgba(255,209,102,0.15), rgba(239,71,111,0.12)); border: 1px solid rgba(255,209,102,0.25); backdrop-filter: blur(20px); padding: 12px 24px; border-radius: 12px; font-size: 13px; font-weight: 600; color: var(--gold); z-index: 1000; opacity: 0; pointer-events: none; transition: all .4s cubic-bezier(.16,1,.3,1); white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,0.3); }
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto; }

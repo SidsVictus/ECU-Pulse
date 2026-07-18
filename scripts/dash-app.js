@@ -337,6 +337,7 @@
           useBridge = false;
           sStart = Date.now();
           initCharts(); drawTachoTicks(); startLoop();
+          showToast('OBD2 not connected — shifting to simulation');
         }, 1200);
       }
     }, 500);
@@ -377,8 +378,17 @@
         clearInterval(loopId);
         loopId = null;
         startLoop();
+        showToast('Bridge disconnected — falling back to simulation');
       }
     }, rate);
+  }
+
+  /* ═══ TOAST ═══ */
+  function showToast(msg) {
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 4000);
   }
 
   /* ═══ CONTROLS ═══ */

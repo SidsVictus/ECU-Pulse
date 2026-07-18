@@ -1,6 +1,12 @@
 (() => {
   'use strict';
 
+  /* ── Feedback Hint (only show with ?feedback=true) ── */
+  if (!window.location.search.includes('feedback=true')) {
+    const hint = document.getElementById('feedbackHint');
+    if (hint) hint.remove();
+  }
+
   /* ── Particle Canvas ── */
   const canvas = document.getElementById('particles');
   const ctx = canvas.getContext('2d');
